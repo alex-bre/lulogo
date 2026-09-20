@@ -166,13 +166,18 @@ if (lock.packages?.['']) lock.packages[''].version = version
 
 pkg.version = version
 
-// The README carries a shields.io version badge. The marker comment on that
-// line is what makes the substitution unambiguous, so it stays even though
-// release-please is gone.
+// The README carries a shields.io version badge.
 const readme = read('README.md')
-const badge = /^(.*message=)(\d+\.\d+\.\d+)(.*<!-- x-release-please-version -->)$/m
-if (!badge.test(readme)) fail('README version badge not found — has the marker comment moved?')
-const nextReadme = readme.replace(badge, `$1${version}$3`)
+const badge = /(label=version&message=)(\d+\.\d+\.\d+)/g
+const hits = readme.match(badge) ?? []
+if (hits.length !== 1) {
+  fail(
+    hits.length === 0
+      ? 'README version badge not found — has the badge URL changed?'
+      : `README version badge matched ${hits.length} times — the substitution is ambiguous`,
+  )
+}
+const nextReadme = readme.replace(badge, `$1${version}`)
 
 // ------------------------------------------------------------------- commit
 

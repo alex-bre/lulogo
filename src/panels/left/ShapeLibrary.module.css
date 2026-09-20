@@ -1,0 +1,25 @@
+/* Reflows to fewer columns as the panel narrows, instead of squeezing four
+   fixed columns down to unusable tiles. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+  gap: 6px;
+}
+
+.item {
+  aspect-ratio: 1 / 1;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-2);
+  color: var(--text-muted);
+}
+.item:hover {
+  background: var(--hover);
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+.item:active {
+  background: var(--active);
+}

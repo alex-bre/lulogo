@@ -1,0 +1,49 @@
+Fonts bundled with this app. The faces registered here are the same ones the
+"text to paths" export outlines with, so the canvas and the export always agree
+(see src/model/fonts.js).
+
+Every bundled face is licensed under the SIL Open Font License 1.1. The full
+licence text for each one ships alongside it in ./licenses/ — the OFL requires
+the licence to travel with the font, so those files are part of the deployed
+build, not just the repository.
+
+Fallback faces — what text renders and exports as when the chosen font isn't
+available:
+  sans.ttf  = Lato (tyPoland, Łukasz Dziedzic)  -> licenses/OFL-Lato.txt
+  serif.ttf = PT Serif (ParaType)               -> licenses/OFL-PT-Serif.txt
+  mono.ttf  = Space Mono (Colophon Foundry)     -> licenses/OFL-Space-Mono.txt
+
+Brand faces — the families offered in the font picker that we ship ourselves,
+so they look the same on every machine. All are VARIABLE fonts with a single
+wght axis, which covers every weight from one file (no separate bold needed).
+A variable face must be declared to CSS as a weight RANGE: pinned to a single
+weight the browser would render the axis default everywhere, and for two of
+these that default is not 400.
+  outfit.ttf           = Outfit (The Outfit Project Authors)
+                         -> licenses/OFL-Outfit.txt
+                         wght 100-900, axis DEFAULT 100 (Thin)
+  work-sans.ttf        = Work Sans (Wei Huang / The Work Sans Project Authors)
+                         -> licenses/OFL-Work-Sans.txt
+                         wght 100-900, axis default 400
+  space-grotesk.ttf    = Space Grotesk (Florian Karsten / The Space Grotesk
+                         Project Authors)
+                         -> licenses/OFL-Space-Grotesk.txt
+                         wght 300-700, axis DEFAULT 300 (Light)
+  playfair-display.ttf = Playfair Display (Claus Eggers Sørensen / The Playfair
+                         Display Project Authors)
+                         -> licenses/OFL-Playfair-Display.txt
+                         wght 400-900, axis default 400
+  jetbrains-mono.ttf   = JetBrains Mono (The JetBrains Mono Project Authors)
+                         -> licenses/OFL-JetBrains-Mono.txt
+                         wght 100-800, axis default 400
+
+A weight is NEVER synthesized: `font-synthesis: none` is set globally, and
+model/fonts.js resolveWeight() only asks for weights we actually ship. A faked
+bold is a smear of the regular outlines that text→paths cannot reproduce, so
+allowing it would silently make exported text disagree with the canvas.
+
+Why only OFL faces: this app ships the font files themselves and outlines their
+glyphs into user exports. Both are redistribution, and outlining is arguably a
+derivative work, so a face may only be bundled here if its licence permits both
+without a per-site agreement. Most commercial licences do not, even when a
+webfont licence has been paid for.

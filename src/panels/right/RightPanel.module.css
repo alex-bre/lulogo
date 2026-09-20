@@ -1,0 +1,88 @@
+.panel {
+  grid-area: right;
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Collapsed state: a thin rail holding just the expand button. */
+.rail {
+  grid-area: right;
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+}
+
+.collapseBtn,
+.railBtn {
+  width: 32px;
+  height: 36px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.collapseBtn:hover,
+.railBtn:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+.railBtn {
+  height: 28px;
+  border-radius: 6px;
+}
+
+.tab {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  padding: 0 2px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-bottom: 2px solid transparent;
+}
+
+/* The panel is fluid down to ~232px — four tab labels only fit there at 11px. */
+@media (max-width: 1200px) {
+  .tab {
+    font-size: 11px;
+  }
+}
+.tab:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+.tabActive {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.placeholder {
+  margin: 0;
+  padding: 12px;
+  color: var(--text-faint);
+  font-size: 12px;
+}

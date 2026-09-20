@@ -1,0 +1,65 @@
+/*
+ * Theme tokens. UI chrome reads these variables so light/dark mode works
+ * everywhere. IMPORTANT: canvas *artwork* (shapes, fills, strokes) must never
+ * use these tokens — artwork keeps its own explicit colors regardless of theme.
+ * Only editor chrome (panels, the canvas backdrop, handles) is themed.
+ */
+:root,
+[data-theme='light'] {
+  /* Native widgets (scrollbars, form controls) follow the editor's theme, not
+     the OS setting — those disagree once a choice has been made by hand. */
+  color-scheme: light;
+
+  --bg: #f5f4f2;
+  --panel: #ffffff;
+  --panel-2: #fbfaf9;
+  --border: #e6e3df;
+  --border-strong: #d5d0c9;
+  --text: #1d1b19;
+  --text-muted: #6f6a64;
+  --text-faint: #9e9891;
+  --accent: #6a7c27;
+  --accent-hover: #566620;
+  --accent-contrast: #ffffff;
+  --accent-soft: #edf1e0;
+  --hover: #f1f3ea;
+  --active: #e4e9d5;
+  --danger: #c42638;
+
+  /* Editor chrome behind the page (the "infinite" backdrop). */
+  --canvas-bg: #e9e7e4;
+  --canvas-grid: #d6d2cd;
+  --canvas-grid-strong: #c4bfb8;
+  --page-shadow: rgba(41, 35, 29, 0.16);
+  --snap-guide: #2e9e6b;
+
+  --shadow-panel: 0 1px 2px rgba(41, 35, 29, 0.06), 0 1px 3px rgba(41, 35, 29, 0.1);
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #191715;
+  --panel: #211e1b;
+  --panel-2: #272320;
+  --border: #332f2b;
+  --border-strong: #423d38;
+  --text: #eae7e3;
+  --text-muted: #a39d96;
+  --text-faint: #6f6a64;
+  --accent: #a3bc47;
+  --accent-hover: #b8d15e;
+  --accent-contrast: #191715;
+  --accent-soft: #363f1e;
+  --hover: #2b2d25;
+  --active: #353a2c;
+  --danger: #f26a63;
+
+  --canvas-bg: #2a2724;
+  --canvas-grid: #363029;
+  --canvas-grid-strong: #423b33;
+  --page-shadow: rgba(0, 0, 0, 0.5);
+  --snap-guide: #46b98a;
+
+  --shadow-panel: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.4);
+}

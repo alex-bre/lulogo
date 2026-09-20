@@ -1,0 +1,27 @@
+.app {
+  --left-w: var(--left-w-open);
+  --right-w: var(--right-w-open);
+  display: grid;
+  /* minmax(0, 1fr) so the canvas column can shrink below its content instead of
+     pushing the right panel off-screen. */
+  grid-template-columns: var(--left-w) minmax(0, 1fr) var(--right-w);
+  grid-template-rows: var(--top-h) minmax(0, 1fr) auto;
+  grid-template-areas:
+    'top top top'
+    'left center right'
+    'bottom bottom bottom';
+  height: 100vh;
+  height: 100dvh; /* mobile browsers: exclude the retracting URL bar */
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.leftCollapsed {
+  --left-w: var(--rail-w);
+}
+
+.rightCollapsed {
+  --right-w: var(--rail-w);
+}

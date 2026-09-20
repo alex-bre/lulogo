@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lulogo — vector workspace</title>
+    <link rel="icon" type="image/svg+xml" href="./lulogo-favicon.svg" />
+    <!-- Resolve the theme before first paint — an explicit choice if one was
+         made, else the OS preference — so a dark-mode user never sees a flash
+         of the light UI. The app re-applies the same value once it mounts; the
+         key must match THEME_KEY in src/state/store.js. -->
+    <script>
+      try {
+        var t = localStorage.getItem('lulogo.theme')
+        if (t !== 'light' && t !== 'dark')
+          t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        document.documentElement.setAttribute('data-theme', t)
+      } catch (e) {
+        /* storage blocked — the static data-theme on <html> stands */
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

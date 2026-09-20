@@ -1,0 +1,34 @@
+.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 30px;
+  margin-top: 2px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 12px;
+}
+.action:hover:not(:disabled) {
+  background: var(--hover);
+  border-color: var(--border-strong);
+}
+.action:disabled {
+  opacity: 0.5;
+}
+
+.hint {
+  margin: -2px 0 2px;
+  color: var(--text-faint);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.pctValue {
+  min-width: 38px;
+  text-align: right;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}

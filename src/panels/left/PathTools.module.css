@@ -1,0 +1,91 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.penBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-2);
+  color: var(--text);
+}
+.penBtn:hover {
+  background: var(--hover);
+}
+.penBtn[data-active] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+}
+.penBtn:disabled {
+  opacity: 0.4;
+}
+
+.boolGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.boolBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 12px;
+}
+.boolBtn:hover:not(:disabled) {
+  background: var(--hover);
+  border-color: var(--border-strong);
+}
+.boolBtn:disabled {
+  opacity: 0.4;
+}
+
+.hint {
+  margin: 2px 0 0;
+  color: var(--text-faint);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+/* Corner rounding: radius on the left, the action on the right. */
+.roundRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.roundRow > :first-child {
+  width: 64px;
+  flex: none;
+}
+.roundBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  flex: 1;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 12px;
+}
+.roundBtn:hover:not(:disabled) {
+  background: var(--hover);
+  border-color: var(--border-strong);
+}
+.roundBtn:disabled {
+  opacity: 0.4;
+}

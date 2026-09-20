@@ -1,0 +1,87 @@
+/* Collapsed launcher button, bottom-right of the canvas. */
+.fab {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: var(--shadow-panel);
+}
+.fab:hover {
+  background: var(--hover);
+}
+
+/* Expanded drawer. */
+.panel {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: min(460px, calc(100% - 20px));
+  max-height: min(55%, 520px);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+  box-shadow: var(--shadow-panel);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.iconBtn {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.iconBtn:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.code {
+  margin: 0;
+  padding: 10px 12px;
+  overflow: auto;
+  flex: 1;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text);
+  white-space: pre;
+  tab-size: 2;
+  background: var(--panel-2);
+}

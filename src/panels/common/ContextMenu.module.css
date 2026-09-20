@@ -1,0 +1,86 @@
+.menu {
+  position: fixed;
+  z-index: 3000;
+  min-width: 196px;
+  max-width: 300px;
+  padding: 4px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-panel);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  transform-origin: top left;
+  animation: ctxIn 90ms ease-out;
+}
+
+@keyframes ctxIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  text-align: left;
+  padding: 7px 9px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.item:hover:not(:disabled) {
+  background: var(--hover);
+}
+
+.item:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.item[data-danger]:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--danger) 15%, transparent);
+  color: var(--danger);
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  color: var(--text-muted);
+  flex: none;
+}
+
+.item[data-danger] .icon,
+.item:disabled .icon {
+  color: inherit;
+}
+
+.label {
+  flex: 1;
+}
+
+.shortcut {
+  color: var(--text-faint);
+  font-size: 11px;
+  margin-left: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sep {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 2px;
+}

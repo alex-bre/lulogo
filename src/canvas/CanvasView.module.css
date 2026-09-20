@@ -1,0 +1,246 @@
+.center {
+  grid-area: center;
+  position: relative;
+  overflow: hidden;
+  background: var(--canvas-bg);
+}
+
+.svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none; /* we handle pan/zoom ourselves */
+}
+
+/* Artboard fill carries a soft drop shadow against the backdrop. */
+.page {
+  filter: drop-shadow(0 1px 5px var(--page-shadow));
+}
+
+.selectionBox {
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+
+.handle {
+  fill: var(--panel);
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+.handle:hover {
+  fill: var(--accent);
+}
+
+.handleStalk {
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+
+/* Pen tool */
+.penPath {
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+.penRubber {
+  stroke: var(--accent);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+  opacity: 0.7;
+}
+.penHandleLine {
+  stroke: var(--accent);
+  stroke-width: 1;
+  opacity: 0.6;
+}
+.penHandle {
+  fill: var(--panel);
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+.penAnchor {
+  fill: var(--panel);
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+.penAnchorFirst {
+  fill: var(--accent);
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+.penAnchorActive {
+  fill: var(--accent);
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+.penAddDot {
+  fill: var(--accent);
+  opacity: 0.5;
+}
+
+.marquee {
+  stroke: var(--accent);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+  fill: var(--accent);
+  fill-opacity: 0.08;
+}
+
+.pageBorder {
+  stroke: var(--border-strong);
+  stroke-width: 1;
+}
+
+/* Blue object-alignment guides shown while dragging/resizing. */
+.snapGuide {
+  stroke: var(--snap-guide);
+  stroke-width: 1;
+  pointer-events: none;
+}
+
+/* 3D transform preview: orientation cube + angle readout. */
+.t3dEdge {
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  fill: none;
+}
+.t3dEdgeHidden {
+  stroke: var(--accent);
+  stroke-width: 1;
+  fill: none;
+  opacity: 0.35;
+}
+.t3dFace {
+  fill: var(--accent);
+  opacity: 0.05;
+}
+.t3dFaceFront {
+  fill: var(--accent);
+  opacity: 0.09;
+}
+/* Transparent click target over a side face; highlights on hover so it reads
+   as selectable (click it to reseat the artwork onto that plane). */
+.t3dFaceHit {
+  fill: transparent;
+}
+.t3dFaceHit:hover {
+  fill: var(--accent);
+  opacity: 0.22;
+}
+.t3dLabel {
+  fill: var(--text);
+  stroke: var(--canvas-bg);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Floating position / size readout during a move or resize. */
+.hud {
+  position: absolute;
+  padding: 2px 7px;
+  font-size: 11px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-contrast);
+  background: var(--accent);
+  border-radius: 5px;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: var(--shadow-panel);
+  z-index: 5;
+}
+
+.textEditor {
+  position: absolute;
+  display: block;
+  margin: 0;
+  /* Right side only: any left padding would offset the glyphs from where the
+     SVG <text> under it draws them, making the text jump on double-click. The
+     right gap is room for the caret past the last glyph. */
+  padding: 0 1px 0 0;
+  border: none;
+  background: transparent;
+  outline: 1px solid var(--accent);
+  /* Width/height are set from the node's measured bounds (TextEditor), so: no
+     scrollbars, no soft wrapping and no user resizing — lines break only where
+     the text actually has a newline. */
+  white-space: pre;
+  overflow: hidden;
+  resize: none;
+}
+
+.zoomBar {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-panel);
+}
+
+.zoomBtn {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1;
+}
+.zoomBtn:hover {
+  background: var(--hover);
+}
+
+.zoomLabel {
+  min-width: 50px;
+  height: 26px;
+  padding: 0 4px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  text-align: center;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.zoomLabel:hover {
+  background: var(--hover);
+}
+
+.zoomInput {
+  width: 50px;
+  height: 26px;
+  padding: 0 4px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  text-align: center;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+.zoomInput:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.fitBtn {
+  height: 26px;
+  padding: 0 10px;
+  margin-left: 2px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+}
+.fitBtn:hover {
+  background: var(--hover);
+}

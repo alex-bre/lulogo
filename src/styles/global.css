@@ -1,0 +1,66 @@
+/* The bundled @font-face rules are declared from JS (model/fonts.js
+   installFontFaces) — the URLs must be built from Vite's BASE_URL so they resolve
+   under a sub-path (e.g. VS Code's built-in browser proxy), which CSS cannot do. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  /* Never fake a weight or a slant. A synthesized face is a smear of the real
+     outlines that "text → paths" cannot reproduce, so it would silently make the
+     export disagree with the canvas. If a font ships no bold, text renders at a
+     weight we actually have (see model/fonts.js resolveWeight) rather than a
+     forgery. */
+  font-synthesis: none;
+  -webkit-font-synthesis: none;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+/* Avoid accidental text selection while dragging on the canvas / UI. */
+.no-select {
+  user-select: none;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-faint);
+  background-clip: content-box;
+}

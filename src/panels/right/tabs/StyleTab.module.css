@@ -1,0 +1,159 @@
+.empty {
+  margin: 0;
+  padding: 4px 0;
+  color: var(--text-faint);
+  font-size: 12px;
+}
+
+.styleActions {
+  display: flex;
+  gap: 6px;
+  padding: 10px var(--panel-pad-x) 12px;
+}
+.actionBtn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel-2);
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+.actionBtn:hover:not(:disabled) {
+  background: var(--hover);
+  color: var(--text);
+}
+.actionBtn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.textActions {
+  display: flex;
+}
+
+.gradient {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.typeRow {
+  display: flex;
+  gap: 4px;
+}
+.typeBtn {
+  flex: 1;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel-2);
+  color: var(--text-muted);
+  font-size: 12px;
+}
+.typeBtn:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+.typeBtn[data-active] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+}
+
+/* Checkerboard so transparent parts of the gradient read as transparent. */
+.preview {
+  position: relative;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  overflow: hidden;
+  background-image: linear-gradient(45deg, var(--border-strong) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--border-strong) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--border-strong) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--border-strong) 75%);
+  background-size: 10px 10px;
+  background-position: 0 0, 0 5px, 5px -5px, -5px 0;
+}
+.previewFill {
+  position: absolute;
+  inset: 0;
+}
+
+.stops {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.stop {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 6px;
+  background: var(--panel-2);
+}
+.stopMain {
+  display: grid;
+  grid-template-columns: 28px 1fr auto 28px;
+  align-items: center;
+  gap: 6px;
+}
+.stopAlpha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.alphaLabel {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+/* Tint the slider track transparent→opaque in the stop's own color. */
+.alphaSlider {
+  flex: 1;
+  min-width: 0;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--alpha-track);
+}
+.stopColor {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+}
+.pct {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+.addStop {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 8px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+.addStop:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.pctValue {
+  min-width: 38px;
+  text-align: right;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}

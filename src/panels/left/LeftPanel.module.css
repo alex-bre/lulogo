@@ -1,0 +1,67 @@
+.panel {
+  grid-area: left;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Collapsed state: a thin rail holding just the expand button. */
+.rail {
+  grid-area: left;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+}
+
+.collapseBtn,
+.railBtn {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.collapseBtn:hover,
+.railBtn:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.section {
+  border-bottom: 1px solid var(--border);
+}
+
+.heading {
+  margin: 0;
+  padding: 10px var(--panel-pad-x) 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
+}
+
+.body {
+  padding: 4px var(--panel-pad-x) 12px;
+}
+
+.placeholder {
+  margin: 0;
+  color: var(--text-faint);
+  font-size: 12px;
+}

@@ -1,0 +1,385 @@
+/* ---- collapsed bar ---- */
+
+.bar {
+  grid-area: bottom;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  height: 30px;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+}
+
+.barBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.barBtn:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.badge {
+  min-width: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+}
+
+/* ---- expanded panel ---- */
+
+.panel {
+  grid-area: bottom;
+  display: flex;
+  flex-direction: column;
+  height: var(--anim-h);
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  overflow: hidden;
+}
+
+/* Transport + length + effect picker don't all fit at narrow widths, so the
+   header scrolls sideways rather than crushing its controls. */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 36px;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  flex: none;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+.header::-webkit-scrollbar {
+  display: none;
+}
+
+/* Everything but the spacer keeps its size; the spacer takes up the slack when
+   there is any, and collapses to zero when there isn't. */
+.header > *:not(.spacer) {
+  flex: none;
+}
+
+.title {
+  font-weight: 600;
+  margin-right: 2px;
+}
+
+.sep {
+  width: 1px;
+  height: 18px;
+  background: var(--border);
+  margin: 0 6px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.iconBtn:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.iconBtn[data-active] {
+  color: var(--accent);
+  background: var(--active);
+}
+
+.time {
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  color: var(--text);
+  margin: 0 4px;
+  min-width: 86px;
+}
+
+.timeMuted {
+  color: var(--text-faint);
+}
+
+.durationField {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.durationInput {
+  width: 52px;
+  display: inline-flex;
+}
+
+.addEffect {
+  height: 26px;
+  padding: 0 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.addEffect:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* ---- timeline body ---- */
+
+.body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.empty {
+  margin: auto;
+  max-width: 420px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.6;
+  padding: 12px;
+}
+
+.scroll {
+  flex: 1;
+  overflow: auto;
+}
+
+.rows {
+  position: relative;
+  min-width: 100%;
+}
+
+.row {
+  display: flex;
+  align-items: stretch;
+  height: 30px;
+  border-bottom: 1px solid var(--border);
+}
+
+.headRow {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  background: var(--panel);
+  height: 24px;
+}
+
+.name {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  flex: none;
+  width: 148px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 12px;
+  color: var(--text);
+  background: var(--panel-2);
+  border: none;
+  border-right: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.name:hover {
+  background: var(--hover);
+}
+
+.corner {
+  z-index: 5;
+  color: var(--text-faint);
+  font-size: 11px;
+  cursor: default;
+}
+
+.corner:hover {
+  background: var(--panel-2);
+}
+
+.ruler {
+  position: relative;
+  flex: none;
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.tick,
+.tickMajor {
+  position: absolute;
+  bottom: 0;
+  width: 1px;
+  height: 5px;
+  background: var(--border-strong);
+  font-size: 10px;
+  color: var(--text-faint);
+}
+
+.tickMajor {
+  height: 9px;
+  padding-left: 4px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.lane {
+  position: relative;
+  flex: none;
+  background:
+    repeating-linear-gradient(to right, transparent 0, transparent 119px, var(--border) 119px, var(--border) 120px);
+}
+
+/* ---- clips ---- */
+
+.clip {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  display: flex;
+  align-items: center;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--accent) 22%, var(--panel));
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--panel));
+  color: var(--text);
+  cursor: grab;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.clip[data-selected] {
+  background: color-mix(in srgb, var(--accent) 38%, var(--panel));
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.clipLabel {
+  flex: 1;
+  padding: 0 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+.clipHandle {
+  flex: none;
+  width: 6px;
+  align-self: stretch;
+  cursor: ew-resize;
+}
+
+.clipHandle:hover {
+  background: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+/* ---- playhead ---- */
+
+.playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--danger);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.playheadKnob {
+  position: sticky;
+  top: 0;
+  margin-left: -4px;
+  width: 9px;
+  height: 10px;
+  background: var(--danger);
+  clip-path: polygon(0 0, 100% 0, 100% 55%, 50% 100%, 0 55%);
+}
+
+/* ---- clip inspector ---- */
+
+.inspector {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  padding: 0 10px;
+  border-top: 1px solid var(--border);
+  background: var(--panel-2);
+  font-size: 12px;
+  overflow-x: auto;
+}
+
+.inspTitle {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.inspNode {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.inspField {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Shared controls default to width:100%; pin them inside the inline strip. */
+.inspField > input {
+  width: 60px;
+  flex: none;
+}
+
+.inspField > select {
+  width: auto;
+  max-width: 150px;
+  flex: none;
+}
+
+.durationInput > input {
+  width: 52px;
+  flex: none;
+}

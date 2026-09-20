@@ -1,0 +1,40 @@
+/*
+ * Layout scale tokens. Editor chrome (top bar, side panels, timeline, form
+ * controls) reads these so it shrinks as the viewport does and the canvas keeps
+ * as much room as it can. Canvas *artwork* is never affected — it scales with
+ * the viewport zoom, not with these.
+ *
+ * Side panels are fluid between a comfortable width and the narrowest width
+ * their controls still fit in. Below the thresholds in state/useResponsiveLayout.js
+ * they collapse to rails instead of shrinking further.
+ */
+:root {
+  --top-h: 48px;
+  --rail-w: 32px;
+  --left-w-open: clamp(200px, 17vw, 248px);
+  --right-w-open: clamp(232px, 20vw, 288px);
+  --anim-h: clamp(168px, 30vh, 232px);
+
+  /* Chrome metrics: form controls (Controls.module.css) and chrome buttons. */
+  --control-h: 28px;
+  --btn-h: 30px;
+  --field-label-w: 64px;
+  --panel-pad-x: 12px;
+}
+
+/* Narrow: buy back horizontal room inside the panels themselves. */
+@media (max-width: 1200px) {
+  :root {
+    --field-label-w: 56px;
+    --panel-pad-x: 10px;
+  }
+}
+
+/* Short: the top bar and timeline give vertical room back to the canvas. */
+@media (max-height: 760px) {
+  :root {
+    --top-h: 42px;
+    --control-h: 26px;
+    --btn-h: 28px;
+  }
+}

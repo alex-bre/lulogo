@@ -1,0 +1,178 @@
+.topbar {
+  grid-area: top;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 12px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  min-width: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* Both logo files carry their own colours — the brand green stays put in light
+   and dark alike, so there is nothing to inherit here. The lockup already sets
+   the mark to the wordmark's cap height and tracks the pair tight, so the two
+   read as one object; `.brand`'s gap has nothing left to space. */
+.logoFull,
+.logoMark {
+  display: block;
+  flex: none;
+}
+
+/* Only ever one of the two is in the tree, so the shared alt text is read once. */
+.logoMark {
+  display: none;
+}
+
+.group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.busy {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-right: 4px;
+}
+
+.menuWrap {
+  position: relative;
+}
+.menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 200px;
+  padding: 4px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-panel);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.menuCheck {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 8px;
+  font-size: 12px;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2px;
+}
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+}
+.menuItem:hover:not(:disabled) {
+  background: var(--hover);
+}
+
+.menuItem:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.menuSep {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 2px;
+}
+
+.btn {
+  height: var(--btn-h);
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel-2);
+  color: var(--text);
+}
+.btn:hover:not(:disabled) {
+  background: var(--hover);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.iconBtn {
+  height: var(--btn-h);
+  width: var(--btn-h);
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel-2);
+  font-size: 14px;
+  line-height: 1;
+}
+.iconBtn:hover:not(:disabled) {
+  background: var(--hover);
+}
+.iconBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* The source link wears the icon-button look; an anchor needs the colour and
+   underline reset that a button gets for free. */
+a.iconBtn {
+  color: var(--text);
+  text-decoration: none;
+}
+
+/* Narrow: tighten the gutters, then drop the wordmark and the button labels —
+   the icons alone carry Import/File once there's no room for both. */
+@media (max-width: 1100px) {
+  .topbar {
+    gap: 10px;
+    padding: 0 8px;
+  }
+}
+
+/* Too narrow for the wordmark: fall back to the bare mark. */
+@media (max-width: 900px) {
+  .logoFull {
+    display: none;
+  }
+  .logoMark {
+    display: block;
+  }
+}
+
+@media (max-width: 700px) {
+  .btn {
+    padding: 0 8px;
+  }
+  .btnLabel {
+    display: none;
+  }
+}

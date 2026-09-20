@@ -1,0 +1,199 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(10, 12, 16, 0.45);
+}
+
+.card {
+  width: min(440px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  padding: 16px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-panel);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+/* public/lulogo-logo.svg carries its own colours — nothing to inherit here. */
+.logo {
+  display: block;
+}
+
+.heading {
+  flex: 1;
+  min-width: 0;
+}
+
+/* The heading is the lockup image; the type rules are gone with the text. */
+.title {
+  margin: 0;
+}
+
+.build {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.iconBtn {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+}
+.iconBtn:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.blurb {
+  margin: 12px 0 14px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.link {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 8px;
+  border-radius: 8px;
+  color: var(--text);
+  text-decoration: none;
+}
+.link:hover {
+  background: var(--hover);
+}
+
+.linkIcon {
+  flex: none;
+  margin-top: 1px;
+  color: var(--text-muted);
+}
+
+.linkText {
+  min-width: 0;
+}
+
+.linkLabel {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.extIcon {
+  color: var(--text-faint);
+}
+
+.linkNote {
+  display: block;
+  margin-top: 1px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.footnote {
+  margin: 14px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-faint);
+}
+
+/* Privacy policy and Impressum, folded into the dialog. `<details>` is used
+   rather than a state hook so the closed sections cost nothing and the browser
+   handles the toggle, its keyboard behaviour, and find-in-page for us. */
+.section {
+  border-top: 1px solid var(--border);
+}
+.section:first-of-type {
+  margin-top: 10px;
+}
+
+.summary {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 9px 8px;
+  border-radius: 8px;
+  cursor: default;
+  list-style: none;
+}
+.summary::-webkit-details-marker {
+  display: none;
+}
+.summary:hover {
+  background: var(--hover);
+}
+
+.chevron {
+  flex: none;
+  margin-top: 2px;
+  color: var(--text-faint);
+  transition: transform 120ms ease;
+}
+.section[open] .chevron {
+  transform: rotate(90deg);
+}
+
+.sectionBody {
+  padding: 0 8px 12px 34px;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+.sectionBody p {
+  margin: 0 0 8px;
+}
+.sectionBody h3 {
+  margin: 12px 0 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+.sectionBody a {
+  color: var(--accent);
+}
+.sectionBody code {
+  font-size: 10.5px;
+  word-break: break-all;
+}
+
+.address {
+  margin: 0 0 8px;
+  font-style: normal;
+}
+
+.updated {
+  color: var(--text-faint);
+}

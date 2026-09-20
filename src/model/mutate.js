@@ -130,17 +130,22 @@ function cloneGradientRef(value, gradients, intoGradients) {
  * When `gradients`/`intoGradients` are supplied, any gradient paint server a
  * node references is duplicated too, so editing the clone's gradient never
  * mutates the original's.
+ *
+ * `idMap`, when given, collects `{ [originalId]: cloneId }` for every node in
+ * the subtree — for callers that carry other id references across (animation
+ * clips point at nodes by id).
  */
-export function cloneSubtree(node, nodes, into, gradients, intoGradients) {
+export function cloneSubtree(node, nodes, into, gradients, intoGradients, idMap) {
   const copy = JSON.parse(JSON.stringify(node))
   copy.id = genId(node.type)
+  if (idMap) idMap[node.id] = copy.id
   if (intoGradients && copy.style) {
     copy.style.fill = cloneGradientRef(copy.style.fill, gradients, intoGradients)
     copy.style.stroke = cloneGradientRef(copy.style.stroke, gradients, intoGradients)
   }
   if (copy.type === 'group') {
     copy.children = node.children.map((cid) => {
-      const child = cloneSubtree(nodes[cid], nodes, into, gradients, intoGradients)
+      const child = cloneSubtree(nodes[cid], nodes, into, gradients, intoGradients, idMap)
       child.parent = copy.id
       return child.id
     })

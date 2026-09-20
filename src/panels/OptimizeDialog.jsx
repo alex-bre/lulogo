@@ -5,6 +5,7 @@ import {
   OPTIMIZE_PLUGINS,
   byteLength,
   forcedOffPlugins,
+  FORCED_OFF_REASONS,
   formatBytes,
   gzipLength,
   loadSettings,
@@ -271,12 +272,11 @@ export default function OptimizeDialog({ source, filename = 'drawing.svg', anima
                   {enabledCount}/{OPTIMIZE_PLUGINS.length}
                 </span>
               </summary>
-              {forcedOff.length > 0 && (
-                <p className={styles.pluginNote}>
-                  This file animates from an embedded stylesheet, so “Inline styles” is held off — it would move the
-                  animation off the elements the keyframes target.
+              {forcedOff.map((id) => (
+                <p key={id} className={styles.pluginNote}>
+                  {FORCED_OFF_REASONS[id]}
                 </p>
-              )}
+              ))}
               <ul className={styles.pluginList}>
                 {OPTIMIZE_PLUGINS.map((p) => {
                   const locked = forcedOff.includes(p.id)

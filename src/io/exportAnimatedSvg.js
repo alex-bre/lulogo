@@ -1,4 +1,5 @@
 import { serializeDocument } from './serialize'
+import { embedProjectInSvg } from './embedSource'
 import { downloadBlob } from './download'
 import { clipsByNode, accumulateClipsAt, getAnimation, nodeToLocalD, morphD, canMorph } from '../model/animation'
 import { nodeBounds } from '../model/bbox'
@@ -185,6 +186,8 @@ export function serializeAnimatedDocument(doc, { loop = true } = {}) {
 }
 
 /** Serialize with baked-in animation and download. */
-export function downloadAnimatedSvg(doc, { loop = true, filename = 'animation.svg' } = {}) {
-  downloadBlob(new Blob([serializeAnimatedDocument(doc, { loop })], { type: 'image/svg+xml;charset=utf-8' }), filename)
+export function downloadAnimatedSvg(doc, { loop = true, filename = 'animation.svg', embedSource = false } = {}) {
+  let svg = serializeAnimatedDocument(doc, { loop })
+  if (embedSource) svg = embedProjectInSvg(svg, doc)
+  downloadBlob(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }), filename)
 }

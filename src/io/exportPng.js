@@ -1,12 +1,16 @@
 import { serializeDocument } from './serialize'
+import { embedProjectInPng } from './embedSource'
 import { downloadBlob } from './download'
 
 /**
  * Rasterize the document to PNG by drawing the serialized SVG (as a data URL,
  * which keeps the canvas un-tainted) onto a canvas at `scale`× the page size.
  * Text renders via the browser's own fonts.
+ *
+ * With `embedSource`, the project JSON is spliced into the file's metadata so
+ * the picture reopens here as the editable document (see `embedSource.js`).
  */
-export async function downloadPng(doc, { scale = 1, filename = 'drawing.png' } = {}) {
+export async function downloadPng(doc, { scale = 1, embedSource = false, filename = 'drawing.png' } = {}) {
   const svg = serializeDocument(doc)
   const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg)
 
@@ -22,10 +26,10 @@ export async function downloadPng(doc, { scale = 1, filename = 'drawing.png' } =
   canvas.height = Math.max(1, Math.round(doc.page.height * scale))
   canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
 
-  await new Promise((resolve) =>
-    canvas.toBlob((b) => {
-      if (b) downloadBlob(b, filename)
-      resolve()
-    }, 'image/png'),
-  )
+  const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'))
+  if (!blob) throw new Error('Failed to encode the PNG')
+  if (!embedSource) return downloadBlob(blob, filename)
+
+  const bytes = embedProjectInPng(new Uint8Array(await blob.arrayBuffer()), doc)
+  downloadBlob(new Blob([bytes], { type: 'image/png' }), filename)
 }

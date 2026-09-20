@@ -8,8 +8,9 @@ import { undo, redo } from '../state/history'
 import { buildExportSvg, downloadSvg } from '../io/exportSvg'
 import { downloadAnimatedSvg } from '../io/exportAnimatedSvg'
 import { downloadPng } from '../io/exportPng'
-import { downloadProject, openProjectFile } from '../io/project'
-import { importFiles } from '../io/importFile'
+import { downloadProject } from '../io/project'
+import { exportFilename } from '../io/embedSource'
+import { importFiles, openProjectFile } from '../io/importFile'
 import { cropDocumentToSelection } from '../io/cropDocument'
 import styles from './TopBar.module.css'
 
@@ -28,6 +29,7 @@ export default function TopBar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [textToPaths, setTextToPaths] = useState(false)
   const [selectionOnly, setSelectionOnly] = useState(false)
+  const [embedSource, setEmbedSource] = useState(false)
   const [busy, setBusy] = useState(false)
   const [aboutOpen, setAboutOpen] = useState(false)
   // Set to { svg, filename, animated } while the optimize dialog is open.
@@ -84,10 +86,15 @@ export default function TopBar() {
     withBusy(async () => {
       const svg = await buildExportSvg(exportDoc(), {
         textToPaths,
+        embedSource,
         animated: hasAnimation,
         loop: useStore.getState().ui.anim.loop,
       })
-      setOptimizing({ svg, animated: hasAnimation, filename: hasAnimation ? 'animation.svg' : 'drawing.svg' })
+      setOptimizing({
+        svg,
+        animated: hasAnimation,
+        filename: exportFilename(hasAnimation ? 'animation' : 'drawing', 'svg', embedSource),
+      })
     })
   }
   // The editable project file always saves the full document (never cropped).
@@ -130,12 +137,22 @@ export default function TopBar() {
       </div>
 
       <div className={styles.group}>
-        <button className={styles.btn} title="Import SVG or image onto the canvas" onClick={() => importRef.current.click()}>
+        <button
+          className={styles.btn}
+          title="Import an SVG or image onto the canvas. A file that carries a project asks whether to open it or add it to this one."
+          onClick={() => importRef.current.click()}
+        >
           <Upload size={15} />
           <span className={styles.btnLabel}>Import</span>
         </button>
         <input ref={importRef} type="file" accept=".svg,image/*" multiple hidden onChange={onImportPick} />
-        <input ref={projectRef} type="file" accept=".json,application/json" hidden onChange={onProjectPick} />
+        <input
+          ref={projectRef}
+          type="file"
+          accept=".json,application/json,.svg,image/svg+xml,.png,image/png"
+          hidden
+          onChange={onProjectPick}
+        />
 
         <div className={styles.menuWrap} ref={menuRef}>
           <button className={styles.btn} title="File" onClick={() => setMenuOpen((o) => !o)}>
@@ -182,14 +199,38 @@ export default function TopBar() {
                 <input type="checkbox" checked={textToPaths} onChange={(e) => setTextToPaths(e.target.checked)} />
                 Convert text to paths
               </label>
-              <button className={styles.menuItem} onClick={() => runExport((d) => downloadSvg(d, { textToPaths }))}>
+              {/* The exported picture stays an ordinary SVG/PNG everywhere else —
+                  the project only rides along in metadata viewers ignore. */}
+              <label
+                className={styles.menuCheck}
+                title="Keep the editable project inside the exported picture, so the file reopens here as this document. Saved as .lulogo.svg / .lulogo.png; other viewers still see a normal image."
+              >
+                <input type="checkbox" checked={embedSource} onChange={(e) => setEmbedSource(e.target.checked)} />
+                Embed project source
+              </label>
+              <button
+                className={styles.menuItem}
+                onClick={() =>
+                  runExport((d) =>
+                    downloadSvg(d, { textToPaths, embedSource, filename: exportFilename('drawing', 'svg', embedSource) }),
+                  )
+                }
+              >
                 Export as SVG
               </button>
               <button
                 className={styles.menuItem}
                 disabled={!hasAnimation}
                 title={hasAnimation ? 'SVG with the timeline baked in as CSS keyframes' : 'Add effects in the Animation panel first'}
-                onClick={() => runExport((d) => downloadAnimatedSvg(d, { loop: useStore.getState().ui.anim.loop }))}
+                onClick={() =>
+                  runExport((d) =>
+                    downloadAnimatedSvg(d, {
+                      loop: useStore.getState().ui.anim.loop,
+                      embedSource,
+                      filename: exportFilename('animation', 'svg', embedSource),
+                    }),
+                  )
+                }
               >
                 Export as SVG (animated)
               </button>
@@ -201,7 +242,12 @@ export default function TopBar() {
                 <Minimize2 size={15} />
                 Optimize SVG…
               </button>
-              <button className={styles.menuItem} onClick={() => runExport((d) => downloadPng(d))}>
+              <button
+                className={styles.menuItem}
+                onClick={() =>
+                  runExport((d) => downloadPng(d, { embedSource, filename: exportFilename('drawing', 'png', embedSource) }))
+                }
+              >
                 Export as PNG
               </button>
             </div>

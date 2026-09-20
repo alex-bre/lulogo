@@ -7,6 +7,8 @@
 // parser, CSS engine and path arithmetic that nobody who never opens the
 // optimize dialog should have to download.
 
+import { hasEmbeddedSource } from './embedSource'
+
 const SETTINGS_KEY = 'lulogo.optimize.v1'
 
 /**
@@ -82,6 +84,19 @@ export const DEFAULT_SETTINGS = {
 }
 
 /**
+ * Why a plugin can be held off, keyed by its id — the dialog shows these, so a
+ * disabled checkbox never looks like a bug.
+ */
+export const FORCED_OFF_REASONS = {
+  inlineStyles:
+    'This file animates from an embedded stylesheet, so “Inline styles” is held off — it would move the ' +
+    'animation off the elements the keyframes target.',
+  removeMetadata:
+    'This file carries its editable project source, so “Remove <metadata>” is held off — it would strip ' +
+    'the source out and leave a picture that no longer reopens.',
+}
+
+/**
  * Plugins that would break *this particular* file, whatever the settings say.
  *
  * The animated export targets its nodes from an embedded stylesheet, and
@@ -89,10 +104,14 @@ export const DEFAULT_SETTINGS = {
  * which relocates a wrapper group's animation onto its child and can drop the
  * class the keyframes were written against. Rather than let a checkbox quietly
  * de-animate the artwork, it is held off whenever a <style> is present and the
- * dialog says so.
+ * dialog says so. An embedded project source is held off the same way: it lives
+ * in <metadata>, which `removeMetadata` exists to delete.
  */
 export function forcedOffPlugins(svg) {
-  return /<style[\s>]/.test(svg) ? ['inlineStyles'] : []
+  const off = []
+  if (/<style[\s>]/.test(svg)) off.push('inlineStyles')
+  if (hasEmbeddedSource(svg)) off.push('removeMetadata')
+  return off
 }
 
 /** Fill in anything missing/invalid, and apply this file's forced-off plugins. */

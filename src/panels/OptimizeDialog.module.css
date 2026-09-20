@@ -282,7 +282,6 @@
 
 .slider input[type='range'] {
   width: 100%;
-  accent-color: var(--accent);
 }
 
 .check {

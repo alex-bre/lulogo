@@ -1,10 +1,13 @@
 import { downloadBlob } from './download'
 import { DOCUMENT_VERSION, migrateDocument } from './migrate'
-import { useStore } from '../state/store'
 
 // An "editable project" file is the full document model wrapped with a format
 // tag + version, saved as JSON. Unlike the SVG/PNG export (which flattens),
 // this round-trips everything: groups, text-as-text, gradients, layer names.
+//
+// The same JSON is what an SVG or PNG export embeds when asked to carry its
+// source — see `embedSource.js`. Opening any of them goes through
+// `readProjectFile` in `importFile.js`.
 
 const FORMAT = 'lulogo-editor'
 
@@ -29,10 +32,4 @@ export function isProjectFile(file) {
 
 export function downloadProject(doc, filename = 'drawing.lulogo.json') {
   downloadBlob(new Blob([serializeProject(doc)], { type: 'application/json' }), filename)
-}
-
-/** Open a project file and replace the current document. */
-export async function openProjectFile(file) {
-  const doc = parseProject(await file.text())
-  useStore.getState().loadDocument(doc)
 }

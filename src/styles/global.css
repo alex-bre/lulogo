@@ -45,6 +45,14 @@ textarea {
   font: inherit;
 }
 
+/* Checkboxes, radios and range sliders are drawn by the browser, and default to
+   its own blue — the one colour in this UI that belongs to nobody. `accent-color`
+   inherits, so a single declaration at the root retints every native control,
+   and it follows the theme because --accent does. */
+:root {
+  accent-color: var(--accent);
+}
+
 /* Avoid accidental text selection while dragging on the canvas / UI. */
 .no-select {
   user-select: none;

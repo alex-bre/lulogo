@@ -17,6 +17,7 @@ import { makeProjector, isIdentityT3D } from '../model/projection3d'
 import { sessionBounds, nodeSource, projectSource } from '../model/transform3d'
 import { extrudeFaces } from '../model/extrude3d'
 import { ensureAnimation, createClip, MIN_CLIP_MS } from '../model/animation'
+import { mergeDocumentInto } from '../model/merge'
 import { clampZoom, screenToWorld, computeFit } from '../canvas/viewport'
 
 /* ---- tree helpers (operate on an immer draft document) ---- */
@@ -229,6 +230,9 @@ export const useStore = create(
       // Stop rewinds and returns the canvas to its design state.
       anim: { open: false, time: 0, playing: false, loop: true, previewing: false, selectedClipId: null },
       hasStyleClip: false, // true once a style has been copied (enables Paste style)
+      // Set while an import is waiting to be told whether a file that carries a
+      // project should open as one: { name, kind }. See io/importChoice.js.
+      importChoice: null,
     },
 
     /* ---- theme / ui ---- */
@@ -246,6 +250,7 @@ export const useStore = create(
         if (s.ui.themePref === 'system') s.ui.theme = theme
       }),
     setRightTab: (tab) => set((s) => void (s.ui.rightTab = tab)),
+    setImportChoice: (req) => set((s) => void (s.ui.importChoice = req)),
     toggleLeftPanel: () => set((s) => void (s.ui.leftCollapsed = !s.ui.leftCollapsed)),
     toggleRightPanel: () => set((s) => void (s.ui.rightCollapsed = !s.ui.rightCollapsed)),
     // Explicit setters back the viewport-driven collapse (state/useResponsiveLayout.js).
@@ -1042,6 +1047,19 @@ export const useStore = create(
         if (width && height) {
           Object.assign(s.viewport, computeFit(width, height, doc.page.width, doc.page.height))
         }
+      }),
+
+    // Add another project's artwork on top of this one, where it was drawn,
+    // keeping this document's settings (model/merge.js). The additions come in
+    // selected, so they can be moved or deleted as a unit straight away.
+    mergeDocument: (source) =>
+      set((s) => {
+        const created = mergeDocumentInto(s.document, source)
+        if (!created.length) return
+        s.selection = created
+        s.ui.editingTextId = null
+        s.ui.editingPathId = null
+        s.ui.activeAnchor = null
       }),
 
     /* ---- import (Phase 7) ---- */

@@ -11,6 +11,7 @@ import LeftPanel from './panels/left/LeftPanel'
 import RightPanel from './panels/right/RightPanel'
 import CanvasView from './canvas/CanvasView'
 import AnimationPanel from './panels/bottom/AnimationPanel'
+import ImportChoiceDialog from './panels/ImportChoiceDialog'
 import styles from './App.module.css'
 
 export default function App() {
@@ -37,6 +38,9 @@ export default function App() {
       <CanvasView />
       <RightPanel />
       <AnimationPanel />
+      {/* Files reach the app from the canvas and the clipboard as well as the
+          toolbar, so the question one of them can raise is mounted app-wide. */}
+      <ImportChoiceDialog />
     </div>
   )
 }

@@ -12,7 +12,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/licence-AGPL--3.0--only-blue" alt="Licence: AGPL-3.0-only"></a>
-  <a href="CHANGELOG.md"><img src="https://img.shields.io/static/v1?label=version&message=0.3.0&color=blue" alt="Version"></a>
+  <a href="CHANGELOG.md"><img src="https://img.shields.io/static/v1?label=version&message=0.4.0&color=blue" alt="Version"></a>
 </p>
 
 ---

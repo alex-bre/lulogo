@@ -53,6 +53,40 @@ npm run preview    # serve that build locally
 
 Node 22 or newer.
 
+## Releases and deployment
+
+Two workflows, each with a single trigger.
+
+**The site** redeploys on every push to `main` — `.github/workflows/pages.yml`
+tests, builds, and publishes `dist/` to
+[GitHub Pages](https://alex-bre.github.io/lulogo/). Merging is the whole
+deployment procedure; there is nothing to run by hand. Pages is configured
+with *Settings → Pages → Source: GitHub Actions*, which is a one-time setting.
+
+**A release** is cut locally and published by its tag:
+
+```bash
+npm run release -- --minor      # or --patch / --major / an explicit 0.5.0
+npm run release -- --minor --dry-run   # see the changelog entry first
+```
+
+That writes the CHANGELOG entry, bumps the version in `package.json`,
+`package-lock.json` and the README badge, commits, and tags — all locally,
+nothing pushed. Review the commit, then:
+
+```bash
+git push --follow-tags
+```
+
+The tag is what publishes: `.github/workflows/release.yml` runs on `v*`,
+builds, and creates the GitHub Release with that version's CHANGELOG entry as
+the notes and the static build attached as a zip. The same push also updates
+`main`, so the site redeploys at the same time.
+
+Only conventional-commit subjects (`feat:`, `fix:`, `perf:`, `revert:`,
+`refactor:`, `docs:`) reach the changelog; `chore:`, `ci:` and `test:` are
+deliberately left out.
+
 ## Self-hosting
 
 The build output is a folder of static files — put `dist/` behind any web

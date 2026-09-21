@@ -1,0 +1,60 @@
+name: Release
+
+# Driven by the tag that `npm run release` creates locally. Pushing the tag is
+# the single act that publishes a release; nothing here decides a version.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+
+      # The build is the deliverable for self-hosters, so it is attached to the
+      # release rather than left to be rebuilt from source.
+      - name: Package the build
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+          (cd dist && zip -qr "../lulogo-$version-dist.zip" .)
+
+      # The changelog entry for this version, verbatim — it is already written
+      # and reviewed in the release commit, so the release notes reuse it
+      # instead of being generated a second time from the same commits.
+      - name: Extract the changelog entry
+        run: |
+          # Headings are `## 0.4.0 (date)` or `## [0.4.0](compare-url) (date)`, so
+          # the version is anchored to the start of the heading — matching it
+          # anywhere would also hit the compare URL of a neighbouring entry.
+          awk -v ver="$VERSION" '
+            /^## / {
+              if (found) exit
+              if ($0 ~ "^## \\[?" ver "[]) ]") { found = 1; next }
+            }
+            found { print }
+          ' CHANGELOG.md > notes.md
+          if [ ! -s notes.md ]; then
+            echo "no CHANGELOG.md entry for $VERSION" >&2
+            exit 1
+          fi
+
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file notes.md \
+            "lulogo-$VERSION-dist.zip"

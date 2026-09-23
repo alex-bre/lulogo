@@ -55,33 +55,40 @@ Node 22 or newer.
 
 ## Releases and deployment
 
-Two workflows, each with a single trigger.
+Three workflows under the repository's **Actions** tab.
 
-**The site** redeploys on every push to `main` — `.github/workflows/pages.yml`
+**The site** deploys on the branch picked (normally `main`). `.github/workflows/pages.yml`
 tests, builds, and publishes `dist/` to
-[GitHub Pages](https://alex-bre.github.io/lulogo/). Merging is the whole
-deployment procedure; there is nothing to run by hand. Pages is configured
-with *Settings → Pages → Source: GitHub Actions*, which is a one-time setting.
+[GitHub Pages](https://alex-bre.github.io/lulogo/). Pushes to `main` do not
+change the live site.
 
-**A release** is cut locally and published by its tag:
+**The tests** run on demand. Deploy and release run them too, before they publish anything.
+
+**A release** can be cut either on GitHub or locally. Both write the
+CHANGELOG entry, bump the version in `package.json`, `package-lock.json` and
+the README badge, commit, and tag `vX.Y.Z`.
+
+*On GitHub:* *Actions → Release → Run workflow*, then choose the bump
+(`minor`, `patch`, `major`, or `custom` with a version such as `0.5.0` in the
+version field). Tick *dry run* first to see the changelog entry in the run
+summary without changing anything. A real run tests, cuts the release on
+`main`, pushes the commit and tag, and publishes the GitHub Release — one run
+does it all. `custom` with an existing tag (e.g. `v0.4.0`) skips the cutting
+and only publishes that tag, for a tag that has no release yet.
+
+*Locally:*
 
 ```bash
 npm run release -- --minor      # or --patch / --major / an explicit 0.5.0
 npm run release -- --minor --dry-run   # see the changelog entry first
+git push --follow-tags          # after reviewing the commit
 ```
 
-That writes the CHANGELOG entry, bumps the version in `package.json`,
-`package-lock.json` and the README badge, commits, and tags — all locally,
-nothing pushed. Review the commit, then:
+Pushing the tag starts the same workflow, which publishes it.
 
-```bash
-git push --follow-tags
-```
-
-The tag is what publishes: `.github/workflows/release.yml` runs on `v*`,
-builds, and creates the GitHub Release with that version's CHANGELOG entry as
-the notes and the static build attached as a zip. The same push also updates
-`main`, so the site redeploys at the same time.
+Either way the GitHub Release gets that version's CHANGELOG entry as its notes
+and the static build attached as a zip. The site is not redeployed by a
+release; run Pages afterwards if it should show the new version.
 
 Only conventional-commit subjects (`feat:`, `fix:`, `perf:`, `revert:`,
 `refactor:`, `docs:`) reach the changelog; `chore:`, `ci:` and `test:` are

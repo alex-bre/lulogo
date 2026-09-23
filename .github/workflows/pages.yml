@@ -1,10 +1,9 @@
 name: Pages
 
-# Every push to main deploys. The app is a folder of static files with no
-# backend, so there is nothing to stage — main is what the site shows.
+# Deploys only when started by hand (Actions → Pages → Run workflow), so pushes
+# to main do not change the live site. The app is a folder of static files with
+# no backend, so there is nothing to stage — the chosen branch is what it shows.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:

@@ -1,19 +1,105 @@
 name: Release
 
-# Driven by the tag that `npm run release` creates locally. Pushing the tag is
-# the single act that publishes a release; nothing here decides a version.
+# Two ways in, one publish:
+#
+# - Pushing a `v*` tag (made locally by `npm run release`) publishes it.
+# - Actions → Release → Run workflow cuts the release on GitHub instead: the
+#   `cut` job runs the same script — changelog entry, version bump, commit,
+#   tag — and pushes the commit and tag to main. With `custom` and an existing
+#   tag such as v0.4.0 it skips cutting and only publishes that tag.
+#
+# A tag pushed by this workflow does not start it again (GitHub never triggers
+# workflows from pushes made with its own token), so `publish` runs here, once.
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      release:
+        description: 'Version bump; custom uses the version field below'
+        type: choice
+        options: [minor, patch, major, custom]
+        default: minor
+      version:
+        description: 'custom only: a new version (0.5.0), or an existing tag (v0.4.0) to publish without cutting'
+        type: string
+        required: false
+      dry_run:
+        description: 'Only show the changelog entry; change nothing'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
 
+# One release at a time: two cuts racing would both read the same previous tag.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
-  release:
+  cut:
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      !(inputs.release == 'custom' && startsWith(inputs.version, 'v'))
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.release.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          # The whole history and its tags: the changelog covers the commits
+          # since the previous `v*` tag.
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Before anything is committed, so a failing build never gets a version.
+      - run: npm test
+
+      - id: release
+        name: Cut the release
+        env:
+          RELEASE: ${{ inputs.release }}
+          VERSION: ${{ inputs.version }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if [ "$RELEASE" = custom ]; then arg="$VERSION"; else arg="--$RELEASE"; fi
+          if [ "$DRY_RUN" = true ]; then
+            node scripts/release.mjs "$arg" --dry-run | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          node scripts/release.mjs "$arg"
+          tag="v$(node -p "require('./package.json').version")"
+          # Atomic: the commit and its tag land together or not at all.
+          git push --atomic origin main "$tag"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+  publish:
+    needs: cut
+    # Runs after a successful cut, and on its own for a pushed tag or an
+    # existing one given by hand (where `cut` is skipped).
+    if: >-
+      !cancelled() && !inputs.dry_run &&
+      (needs.cut.result == 'success' || needs.cut.result == 'skipped')
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ needs.cut.outputs.tag || inputs.version || github.ref_name }}
+    steps:
+      - name: Check the tag
+        run: |
+          case "$TAG" in
+            v*) ;;
+            *) echo "not a release tag: $TAG" >&2; exit 1 ;;
+          esac
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ env.TAG }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -26,7 +112,7 @@ jobs:
       # release rather than left to be rebuilt from source.
       - name: Package the build
         run: |
-          version="${GITHUB_REF_NAME#v}"
+          version="${TAG#v}"
           echo "VERSION=$version" >> "$GITHUB_ENV"
           (cd dist && zip -qr "../lulogo-$version-dist.zip" .)
 
@@ -54,7 +140,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" \
-            --title "$GITHUB_REF_NAME" \
+          gh release create "$TAG" \
+            --title "$TAG" \
             --notes-file notes.md \
             "lulogo-$VERSION-dist.zip"

@@ -5,23 +5,37 @@ const SUIT_RED = '#d64045'
 const SUIT_BLACK = '#1a1d21'
 
 // The shape library shown in the left panel.
+// Palette sections, in display order. Each kind below names its group.
+export const SHAPE_GROUPS = [
+  { id: 'basic', label: 'Basic' },
+  { id: 'polygons', label: 'Polygons & stars' },
+  { id: 'suits', label: 'Card suits' },
+  { id: '3d', label: '3D' },
+]
+
 export const SHAPE_KINDS = [
-  { kind: 'rect', label: 'Rectangle' },
-  { kind: 'rounded', label: 'Rounded' },
-  { kind: 'circle', label: 'Circle' },
-  { kind: 'ellipse', label: 'Ellipse' },
-  { kind: 'triangle', label: 'Triangle' },
-  { kind: 'right-triangle', label: 'Right triangle' },
-  { kind: 'half-circle', label: 'Half-circle' },
-  { kind: 'pentagon', label: 'Pentagon' },
-  { kind: 'hexagon', label: 'Hexagon' },
-  { kind: 'star', label: 'Star' },
-  { kind: 'cube', label: 'Isometric cube' },
-  { kind: 'cone', label: 'Cone' },
-  { kind: 'heart', label: 'Heart' },
-  { kind: 'diamond', label: 'Diamond' },
-  { kind: 'spade', label: 'Spade' },
-  { kind: 'club', label: 'Club' },
+  { kind: 'rect', label: 'Rectangle', group: 'basic' },
+  { kind: 'square', label: 'Square', group: 'basic' },
+  { kind: 'rounded', label: 'Rounded', group: 'basic' },
+  { kind: 'pill', label: 'Pill', group: 'basic' },
+  { kind: 'circle', label: 'Circle', group: 'basic' },
+  { kind: 'ellipse', label: 'Ellipse', group: 'basic' },
+  { kind: 'ring', label: 'Ring', group: 'basic' },
+  { kind: 'half-circle', label: 'Half-circle', group: 'basic' },
+  { kind: 'quarter-circle', label: 'Quarter-circle', group: 'basic' },
+  { kind: 'triangle', label: 'Triangle', group: 'basic' },
+  { kind: 'right-triangle', label: 'Right triangle', group: 'basic' },
+  { kind: 'pentagon', label: 'Pentagon', group: 'polygons' },
+  { kind: 'hexagon', label: 'Hexagon', group: 'polygons' },
+  { kind: 'star', label: 'Star', group: 'polygons' },
+  { kind: 'star-4', label: '4-point star', group: 'polygons' },
+  { kind: 'star-6', label: '6-point star', group: 'polygons' },
+  { kind: 'heart', label: 'Heart', group: 'suits' },
+  { kind: 'diamond', label: 'Diamond', group: 'suits' },
+  { kind: 'spade', label: 'Spade', group: 'suits' },
+  { kind: 'club', label: 'Club', group: 'suits' },
+  { kind: 'cube', label: 'Isometric cube', group: '3d' },
+  { kind: 'cone', label: 'Cone', group: '3d' },
 ]
 
 // Control-point distance for a circular quarter-arc cubic bezier.
@@ -37,6 +51,18 @@ function halfCirclePath(px, py, r) {
     `M ${r2(px - r)} ${r2(flat)} ` +
     `C ${r2(px - r)} ${r2(flat - k)} ${r2(px - k)} ${r2(top)} ${r2(px)} ${r2(top)} ` +
     `C ${r2(px + k)} ${r2(top)} ${r2(px + r)} ${r2(flat - k)} ${r2(px + r)} ${r2(flat)} Z`
+  )
+}
+
+// Quarter circle: the right angle sits bottom-left, bounding box (r x r)
+// centered on (px, py).
+function quarterCirclePath(px, py, r) {
+  const k = KAPPA * r
+  const x0 = px - r / 2
+  const y0 = py + r / 2
+  return (
+    `M ${r2(x0)} ${r2(y0)} L ${r2(x0 + r)} ${r2(y0)} ` +
+    `C ${r2(x0 + r)} ${r2(y0 - k)} ${r2(x0 + k)} ${r2(y0 - r)} ${r2(x0)} ${r2(y0 - r)} Z`
   )
 }
 
@@ -84,6 +110,24 @@ function circleSub(cx, cy, r) {
     `C ${r2(cx - r)} ${r2(cy - k)} ${r2(cx - k)} ${r2(cy - r)} ${r2(cx)} ${r2(cy - r)} ` +
     `C ${r2(cx + k)} ${r2(cy - r)} ${r2(cx + r)} ${r2(cy - k)} ${r2(cx + r)} ${r2(cy)} Z`
   )
+}
+
+// The same circle wound the other way round.
+function circleSubReversed(cx, cy, r) {
+  const k = KAPPA * r
+  return (
+    `M ${r2(cx + r)} ${r2(cy)} ` +
+    `C ${r2(cx + r)} ${r2(cy - k)} ${r2(cx + k)} ${r2(cy - r)} ${r2(cx)} ${r2(cy - r)} ` +
+    `C ${r2(cx - k)} ${r2(cy - r)} ${r2(cx - r)} ${r2(cy - k)} ${r2(cx - r)} ${r2(cy)} ` +
+    `C ${r2(cx - r)} ${r2(cy + k)} ${r2(cx - k)} ${r2(cy + r)} ${r2(cx)} ${r2(cy + r)} ` +
+    `C ${r2(cx + k)} ${r2(cy + r)} ${r2(cx + r)} ${r2(cy + k)} ${r2(cx + r)} ${r2(cy)} Z`
+  )
+}
+
+// Ring (donut): the hole is the inner circle wound opposite to the outer one,
+// so it stays open under the default nonzero fill rule.
+function ringPath(px, py, outer, inner) {
+  return `${circleSub(px, py, outer)} ${circleSubReversed(px, py, inner)}`
 }
 
 // The heart/spade lobed outline, normalized to unit `s` and centered on (px,py).
@@ -135,6 +179,10 @@ function buildShape(kind, cx, cy) {
   switch (kind) {
     case 'rect':
       return createRect({ x: cx - 90, y: cy - 60, width: 180, height: 120 })
+    case 'square':
+      return createRect({ x: cx - 75, y: cy - 75, width: 150, height: 150, name: 'Square' })
+    case 'pill':
+      return createRect({ x: cx - 110, y: cy - 50, width: 220, height: 100, rx: 50, name: 'Pill' })
     case 'rounded':
       return createRect({ x: cx - 90, y: cy - 60, width: 180, height: 120, rx: 16 })
     case 'circle':
@@ -152,6 +200,10 @@ function buildShape(kind, cx, cy) {
         ],
         name: 'Right triangle',
       })
+    case 'ring':
+      return createPath({ d: ringPath(cx, cy, 80, 48), name: 'Ring' })
+    case 'quarter-circle':
+      return createPath({ d: quarterCirclePath(cx, cy, 150), name: 'Quarter-circle' })
     case 'half-circle':
       return createPath({ d: halfCirclePath(cx, cy, 95), name: 'Half-circle' })
     case 'pentagon':
@@ -160,6 +212,11 @@ function buildShape(kind, cx, cy) {
       return createPolygon({ points: regularPolygonPoints(cx, cy, 90, 6), name: 'Hexagon' })
     case 'star':
       return createPolygon({ points: starPoints(cx, cy, 95, 42, 5), name: 'Star' })
+    case 'star-4':
+      return createPolygon({ points: starPoints(cx, cy, 95, 30, 4), name: '4-point star' })
+    case 'star-6':
+      // Inner radius outer/√3 puts the notches on the lines of two overlapping triangles.
+      return createPolygon({ points: starPoints(cx, cy, 95, 54.85, 6), name: '6-point star' })
     case 'cube':
       return createPath({ d: cubePath(cx, cy, 85), name: 'Cube', style: { stroke: '#5b6470', strokeWidth: 2 } })
     case 'cone':

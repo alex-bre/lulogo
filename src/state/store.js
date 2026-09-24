@@ -208,6 +208,7 @@ export const useStore = create(
       // Theme in two parts: `themePref` is what the user asked for — 'system'
       // until they pick a side — and `theme` is the light/dark actually applied.
       ...initialTheme(),
+      leftTab: 'shapes', // shapes | path | text
       rightTab: 'general', // general | style | arrange | layers
       tool: 'select', // select | pen | text | shape
       canvasSize: { width: 0, height: 0 },
@@ -249,6 +250,7 @@ export const useStore = create(
       set((s) => {
         if (s.ui.themePref === 'system') s.ui.theme = theme
       }),
+    setLeftTab: (tab) => set((s) => void (s.ui.leftTab = tab)),
     setRightTab: (tab) => set((s) => void (s.ui.rightTab = tab)),
     setImportChoice: (req) => set((s) => void (s.ui.importChoice = req)),
     toggleLeftPanel: () => set((s) => void (s.ui.leftCollapsed = !s.ui.leftCollapsed)),
@@ -341,6 +343,9 @@ export const useStore = create(
     setTool: (tool) =>
       set((s) => {
         s.ui.tool = tool
+        // Picking the pen or text tool (e.g. by shortcut) brings up its tab.
+        if (tool === 'pen') s.ui.leftTab = 'path'
+        if (tool === 'text') s.ui.leftTab = 'text'
         s.ui.editingPathId = null
         s.ui.activeAnchor = null
         s.ui.t3d = null

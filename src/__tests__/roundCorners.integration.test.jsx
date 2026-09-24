@@ -26,7 +26,7 @@ function seed(node) {
     selection: [node.id],
     past: [],
     future: [],
-    ui: { ...s.ui, leftCollapsed: false, tool: 'select', t3d: null, editingTextId: null, editingPathId: null },
+    ui: { ...s.ui, leftCollapsed: false, leftTab: 'path', tool: 'select', t3d: null, editingTextId: null, editingPathId: null },
   }))
 }
 

@@ -1,3 +1,19 @@
+/* One titled grid per shape group. */
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.heading {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
+}
+
 /* Reflows to fewer columns as the panel narrows, instead of squeezing four
    fixed columns down to unusable tiles. */
 .grid {

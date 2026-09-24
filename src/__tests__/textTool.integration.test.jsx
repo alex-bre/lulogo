@@ -22,7 +22,7 @@ describe('text tool end-to-end', () => {
     useStore.setState((s) => ({
       document: createDocument(),
       selection: [],
-      ui: { ...s.ui, tool: 'select', editingTextId: null },
+      ui: { ...s.ui, leftCollapsed: false, leftTab: 'text', tool: 'select', editingTextId: null },
     }))
 
     const { container } = render(<App />)

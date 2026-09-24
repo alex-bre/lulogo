@@ -1,6 +1,21 @@
 # Changelog
 
 
+
+## [0.5.0](https://github.com/alex-bre/lulogo/compare/v0.4.0...v0.5.0) (2026-09-24)
+
+
+### Features
+
+* import drawio diagrams ([ea1322c](https://github.com/alex-bre/lulogo/commit/ea1322c61aa6f9c3a3144b8c93be80b4fca810ed))
+* change hide and lock for multiple selected layers at once ([61c43af](https://github.com/alex-bre/lulogo/commit/61c43af6af54c8f3add33b57afcc75c2180ab814))
+* organize the left sidebar in tabs and add more shapes ([be1b6a1](https://github.com/alex-bre/lulogo/commit/be1b6a1ca684ca85b1acef889fd00cee356f10b1))
+
+
+### Documentation
+
+* document the release and deployment workflows ([7e81180](https://github.com/alex-bre/lulogo/commit/7e8118018997d80be76350641ba76ca9c7b80185))
+
 ## 0.4.0 (2026-09-20)
 
 

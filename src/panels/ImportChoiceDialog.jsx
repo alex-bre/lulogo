@@ -72,12 +72,12 @@ export default function ImportChoiceDialog() {
     >
       <div className={styles.card} ref={cardRef} role="dialog" aria-modal="true" aria-labelledby="import-choice-title">
         <h2 className={styles.title} id="import-choice-title">
-          {kind === 'json' ? 'Open or add this project?' : 'This file carries a project'}
+          {kind === 'json' || kind === 'drawio' ? 'Open or add this project?' : 'This file carries a project'}
         </h2>
         <p className={styles.blurb}>
           <span className={styles.filename}>{name}</span>
-          {kind === 'json'
-            ? ' is a saved project. Open it on its own, or add it to what you are working on?'
+          {kind === 'json' || kind === 'drawio'
+            ? ` is a ${kind === 'drawio' ? 'draw.io diagram' : 'saved project'}. Open it on its own, or add it to what you are working on?`
             : ' was exported with its editable source inside it. How should it come in?'}
         </p>
 

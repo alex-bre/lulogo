@@ -139,17 +139,17 @@ export default function TopBar() {
       <div className={styles.group}>
         <button
           className={styles.btn}
-          title="Import an SVG or image onto the canvas. A file that carries a project asks whether to open it or add it to this one."
+          title="Import an SVG, image or draw.io diagram onto the canvas. A file that carries a project asks whether to open it or add it to this one."
           onClick={() => importRef.current.click()}
         >
           <Upload size={15} />
           <span className={styles.btnLabel}>Import</span>
         </button>
-        <input ref={importRef} type="file" accept=".svg,image/*" multiple hidden onChange={onImportPick} />
+        <input ref={importRef} type="file" accept=".svg,image/*,.drawio,.xml,.html" multiple hidden onChange={onImportPick} />
         <input
           ref={projectRef}
           type="file"
-          accept=".json,application/json,.svg,image/svg+xml,.png,image/png"
+          accept=".json,application/json,.svg,image/svg+xml,.png,image/png,.drawio,.xml,.html"
           hidden
           onChange={onProjectPick}
         />

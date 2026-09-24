@@ -40,6 +40,7 @@
   - Optimisation pass you can tune
   - Project file `.lulogo.json`
   - Import SVGs and images
+  - Import draw.io diagrams (incomplete)
 
 ## Running it locally
 

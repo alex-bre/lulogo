@@ -22,7 +22,7 @@ let queue = Promise.resolve()
 /**
  * Ask what `name` should be imported as, and resolve with the choice.
  *
- * `kind` is 'svg', 'png' or 'json'. It decides what the "keep it as a picture"
+ * `kind` is 'svg', 'png', 'json' or 'drawio'. It decides what the "keep it as a picture"
  * option is called, and a .json save has no picture, so it isn't offered.
  */
 export function askImportChoice(name, kind) {

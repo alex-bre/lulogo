@@ -51,8 +51,8 @@ export default function LayersTab() {
   const selection = useStore((s) => s.selection)
   const setSelection = useStore((s) => s.setSelection)
   const toggleSelection = useStore((s) => s.toggleSelection)
-  const setNodeHidden = useStore((s) => s.setNodeHidden)
-  const setNodeLocked = useStore((s) => s.setNodeLocked)
+  const setNodesHidden = useStore((s) => s.setNodesHidden)
+  const setNodesLocked = useStore((s) => s.setNodesLocked)
   const renameNode = useStore((s) => s.renameNode)
   const moveNodes = useStore((s) => s.moveNodes)
   const groupSelection = useStore((s) => s.groupSelection)
@@ -152,6 +152,9 @@ export default function LayersTab() {
       const expanded = isGroup && !collapsed.has(id)
       const selected = selection.includes(id)
       const dt = drop && drop.id === id ? drop.where : null
+      // Toggling a selected row applies to the whole selection (taking the
+      // clicked row's new state); an unselected row toggles on its own.
+      const targets = selected ? selection : [id]
       return (
         <Fragment key={id}>
           <div
@@ -220,7 +223,7 @@ export default function LayersTab() {
               title={node.hidden ? 'Show' : 'Hide'}
               onClick={(e) => {
                 e.stopPropagation()
-                setNodeHidden(id, !node.hidden)
+                setNodesHidden(targets, !node.hidden)
               }}
             >
               {node.hidden ? <EyeOff size={14} /> : <Eye size={14} />}
@@ -230,7 +233,7 @@ export default function LayersTab() {
               title={node.locked ? 'Unlock' : 'Lock'}
               onClick={(e) => {
                 e.stopPropagation()
-                setNodeLocked(id, !node.locked)
+                setNodesLocked(targets, !node.locked)
               }}
             >
               {node.locked ? <Lock size={14} /> : <LockOpen size={14} />}

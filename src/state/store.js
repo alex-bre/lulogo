@@ -833,8 +833,15 @@ export const useStore = create(
       }),
 
     /* ---- layers (Layers tab) ---- */
-    setNodeHidden: (id, hidden) => set((s) => void (s.document.nodes[id] && (s.document.nodes[id].hidden = hidden))),
-    setNodeLocked: (id, locked) => set((s) => void (s.document.nodes[id] && (s.document.nodes[id].locked = locked))),
+    // Hide/lock every node in `ids` (one undo step).
+    setNodesHidden: (ids, hidden) =>
+      set((s) => {
+        for (const id of ids) if (s.document.nodes[id]) s.document.nodes[id].hidden = hidden
+      }),
+    setNodesLocked: (ids, locked) =>
+      set((s) => {
+        for (const id of ids) if (s.document.nodes[id]) s.document.nodes[id].locked = locked
+      }),
     renameNode: (id, name) => set((s) => void (s.document.nodes[id] && (s.document.nodes[id].name = name))),
 
     // Move every node in `ids` relative to `targetId`. `where`: 'before' |

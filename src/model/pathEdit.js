@@ -290,14 +290,37 @@ export function insertAnchor(subs, sp, ai, point) {
 }
 
 /**
- * Remove anchor `ai` from subpath `sp`. A subpath left with fewer than 2 anchors
- * is dropped entirely. Returns the new subpaths array.
+ * Remove anchor `ai` from subpath `sp`. By default the neighbours are joined, so
+ * a closed subpath stays closed. With `open`, the anchor's two segments go too:
+ * a closed subpath opens with the neighbours as its new ends, and an open one
+ * splits in two at that point. Subpaths left with fewer than 2 anchors are
+ * dropped. Returns the new subpaths array.
  */
-export function deleteAnchor(subs, sp, ai) {
+export function deleteAnchor(subs, sp, ai, open = false) {
   const next = cloneSubs(subs)
   const s = next[sp]
   if (!s) return next
-  s.anchors.splice(ai, 1)
-  if (s.anchors.length < 2) next.splice(sp, 1)
+  let parts
+  if (!open) {
+    s.anchors.splice(ai, 1)
+    parts = [s]
+  } else if (s.closed) {
+    // Start right after the removed anchor and run round to just before it.
+    parts = [{ closed: false, anchors: [...s.anchors.slice(ai + 1), ...s.anchors.slice(0, ai)] }]
+  } else {
+    parts = [
+      { closed: false, anchors: s.anchors.slice(0, ai) },
+      { closed: false, anchors: s.anchors.slice(ai + 1) },
+    ]
+  }
+  if (open) {
+    // Drop the handles that pointed at the removed segments.
+    for (const p of parts) {
+      if (!p.anchors.length) continue
+      p.anchors[0].hIn = null
+      p.anchors[p.anchors.length - 1].hOut = null
+    }
+  }
+  next.splice(sp, 1, ...parts.filter((p) => p.anchors.length >= 2))
   return next
 }

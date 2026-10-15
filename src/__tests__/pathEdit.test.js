@@ -70,4 +70,27 @@ describe('pathEdit', () => {
     const oneLeft = deleteAnchor(parsePath('M 0 0 L 10 0'), 0, 0)
     expect(oneLeft).toHaveLength(0)
   })
+
+  it('deletes a point and breaks a closed path open at it', () => {
+    const subs = deleteAnchor(parsePath('M 0 0 C 0 -5 10 -5 10 0 L 10 10 L 0 10 Z'), 0, 1, true)
+    expect(subs).toHaveLength(1)
+    expect(subs[0].closed).toBe(false)
+    expect(subs[0].anchors.map((a) => [a.x, a.y])).toEqual([
+      [10, 10],
+      [0, 10],
+      [0, 0],
+    ])
+    // The handle that belonged to the removed curve is gone.
+    expect(subs[0].anchors[2].hOut).toBe(null)
+  })
+
+  it('deletes a point and splits an open path in two', () => {
+    const subs = deleteAnchor(parsePath('M 0 0 L 10 0 L 20 0 L 30 0 L 40 0'), 0, 2, true)
+    expect(subs.map((s) => s.anchors.map((a) => a.x))).toEqual([
+      [0, 10],
+      [30, 40],
+    ])
+    // A side left with a single point is dropped.
+    expect(deleteAnchor(parsePath('M 0 0 L 10 0 L 20 0 L 30 0'), 0, 1, true).map((s) => s.anchors.length)).toEqual([2])
+  })
 })

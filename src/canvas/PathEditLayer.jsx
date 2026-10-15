@@ -9,7 +9,8 @@ import styles from './CanvasView.module.css'
  *  - a wide transparent hit-path over each segment (click-drag inserts a point),
  *    with a faint dot at its midpoint as an affordance,
  *  - bezier handles (draggable) with connector lines,
- *  - square anchor points (drag to move, Alt-click or Delete to remove).
+ *  - square anchor points (drag to move, Alt-click or Delete to remove;
+ *    right-click to remove or remove and break the path open).
  * All pointer handling lives in useCanvasInteractions, keyed off data-pathpt.
  */
 export default function PathEditLayer() {

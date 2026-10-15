@@ -15,6 +15,7 @@ import {
   Ungroup,
   Hexagon,
   Spline,
+  Scissors,
 } from 'lucide-react'
 import { useStore } from '../state/store'
 import { useElementSize } from './useElementSize'
@@ -128,6 +129,16 @@ export default function CanvasView() {
   const onContextMenu = (e) => {
     e.preventDefault()
     const st = useStore.getState()
+    // Right-click on an anchor while editing points: offer the two delete modes.
+    const pt = e.target.dataset?.pathpt === 'anchor' && st.ui.editingPathId ? e.target.dataset : null
+    if (pt) {
+      const del = (open) => useStore.getState().deletePathPoint(st.ui.editingPathId, +pt.sp, +pt.ai, open)
+      const items = [
+        { label: 'Delete Point', icon: <Trash2 size={14} />, shortcut: 'Del', onClick: () => del(false) },
+        { label: 'Delete Point and Break Path', icon: <Scissors size={14} />, onClick: () => del(true) },
+      ]
+      return setCtxMenu({ x: e.clientX, y: e.clientY, items })
+    }
     const id = pickSelectable(e.target, st.document.nodes, st.selection)
     if (id) {
       if (!st.selection.includes(id)) st.setSelection([id])
@@ -257,7 +268,7 @@ export default function CanvasView() {
       <ZoomControls size={size} />
       <SvgCodePanel />
       {ctxMenu && (
-        <ContextMenu x={ctxMenu.x} y={ctxMenu.y} items={ctxItems} onClose={() => setCtxMenu(null)} />
+        <ContextMenu x={ctxMenu.x} y={ctxMenu.y} items={ctxMenu.items || ctxItems} onClose={() => setCtxMenu(null)} />
       )}
     </main>
   )

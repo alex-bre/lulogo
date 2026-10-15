@@ -371,13 +371,14 @@ export const useStore = create(
         const n = s.document.nodes[id]
         if (n && n.type === 'path') n.d = d
       }),
-    // Remove anchor (sp, ai) from a path. Deleting the last point removes the
-    // whole path node and exits edit mode.
-    deletePathPoint: (id, sp, ai) =>
+    // Remove anchor (sp, ai) from a path; `open` also removes its two segments
+    // (see deleteAnchor). Deleting the last point removes the whole path node
+    // and exits edit mode.
+    deletePathPoint: (id, sp, ai, open = false) =>
       set((s) => {
         const n = s.document.nodes[id]
         if (!n || n.type !== 'path') return
-        const subs = deleteAnchor(parsePath(n.d), sp, ai)
+        const subs = deleteAnchor(parsePath(n.d), sp, ai, open)
         if (!subs.length) {
           const container =
             n.parent && s.document.nodes[n.parent] ? s.document.nodes[n.parent].children : s.document.rootOrder

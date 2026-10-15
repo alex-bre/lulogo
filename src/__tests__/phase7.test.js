@@ -111,6 +111,48 @@ describe('SVG import (Paper.js)', () => {
     expect(nodes[0].style.fill).toBe('#ff0000')
   })
 
+  it('imports stroke-linecap and stroke-linejoin (attribute, style and inherited)', async () => {
+    const { nodes } = await importSvgToNodes(
+      '<svg xmlns="http://www.w3.org/2000/svg">' +
+        '<path d="M0 0 L10 10" stroke="#000" stroke-linecap="round" stroke-linejoin="bevel"/>' +
+        '<path d="M0 0 L10 10" stroke="#000" style="stroke-linecap:square;stroke-linejoin:round"/>' +
+        '<g stroke-linecap="round" stroke-linejoin="round"><path d="M0 0 L10 10" stroke="#000"/></g>' +
+        '<path d="M0 0 L10 10" stroke="#000"/></svg>',
+    )
+    expect(nodes.map((n) => [n.style.lineCap, n.style.lineJoin])).toEqual([
+      ['round', 'bevel'],
+      ['square', 'round'],
+      ['round', 'round'],
+      ['butt', 'miter'],
+    ])
+  })
+
+  it('applies a luminance mask whose black shape hides part of the content', async () => {
+    const { nodes } = await importSvgToNodes(
+      '<svg xmlns="http://www.w3.org/2000/svg"><defs>' +
+        '<mask id="m" maskUnits="userSpaceOnUse" x="0" y="0" width="20" height="20">' +
+        '<rect x="0" y="0" width="20" height="20" fill="white"/>' +
+        '<rect x="0" y="10" width="20" height="10" fill="black"/></mask></defs>' +
+        '<rect x="2" y="2" width="10" height="16" fill="#ff0000" mask="url(#m)"/></svg>',
+    )
+    expect(nodes).toHaveLength(1)
+    const b = geometryBBox(nodes[0])
+    expect(b.y).toBeCloseTo(2)
+    expect(b.height).toBeCloseTo(8)
+  })
+
+  it('clips a stroke-only path as a line, without closing it along the cut', async () => {
+    const { nodes } = await importSvgToNodes(
+      '<svg xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="c"><rect x="0" y="5" width="20" height="20"/></clipPath></defs>' +
+        '<path d="M0 0 L10 10 L20 0" fill="none" stroke="#000" clip-path="url(#c)"/></svg>',
+    )
+    expect(nodes).toHaveLength(1)
+    expect(nodes[0].d).not.toMatch(/z/i)
+    const b = geometryBBox(nodes[0])
+    expect(b.y).toBeCloseTo(5)
+    expect(b.height).toBeCloseTo(5)
+  })
+
   it('bakes group/viewBox transforms into geometry (correct bbox)', async () => {
     const { nodes } = await importSvgToNodes(
       '<svg xmlns="http://www.w3.org/2000/svg"><g transform="translate(100,50)">' +

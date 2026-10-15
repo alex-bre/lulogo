@@ -92,8 +92,8 @@ function styleFromItem(item, m, gradients, override) {
     strokeWidth: (override && override.strokeWidth) || item.strokeWidth || 1,
     strokeOpacity: 1,
     opacity: item.opacity != null ? item.opacity : 1,
-    lineCap: 'butt',
-    lineJoin: 'miter',
+    lineCap: item.strokeCap || 'butt',
+    lineJoin: item.strokeJoin || 'miter',
     dash: null,
   }
 }
@@ -239,6 +239,13 @@ async function clipNode(paper, node, clipData) {
   if (node.type === 'path') {
     const np = operand(paper, node.d)
     const cp = operand(paper, clipData)
+    // Stroke-only: cut the outline itself (an area intersect would close it and
+    // stroke a new edge along the cut).
+    if (!node.style.fill) {
+      const r = np.intersect(cp, { trace: false })
+      const d = r && r.pathData ? absPathData(r.pathData) : null
+      return d ? { ...node, d } : null
+    }
     // The clip is the real (often rounded) outline and the shape just contains
     // it — return the clip verbatim so its curves survive intact.
     if (clipWithinShape(np, cp)) return { ...node, d: absPathData(cp.pathData) }
@@ -333,6 +340,24 @@ async function collect(item, out, gradients, paper, clipData, override, seenClip
 const SHAPE_TAGS = new Set(['rect', 'circle', 'ellipse', 'path', 'polygon', 'polyline'])
 const PAINT_ATTRS = ['fill', 'fill-opacity', 'stroke', 'stroke-width', 'stroke-opacity', 'opacity', 'style']
 
+function isOpaqueBlack(v) {
+  if (v == null) return false
+  const s = String(v).trim().toLowerCase()
+  return (
+    s === 'black' ||
+    s === '#000' ||
+    s === '#000000' ||
+    s === 'rgb(0,0,0)' ||
+    s === 'rgb(0 0 0)' ||
+    s === 'rgb(0%,0%,0%)'
+  )
+}
+
+// mask-type:alpha makes any opaque shape reveal; the default (luminance) makes
+// black hide.
+const isAlphaMask = (mask) =>
+  mask.getAttribute('mask-type') === 'alpha' || /mask-type\s*:\s*alpha/.test(mask.getAttribute('style') || '')
+
 function isOpaqueWhite(v) {
   if (v == null) return false
   const s = String(v).trim().toLowerCase()
@@ -346,9 +371,10 @@ function isOpaqueWhite(v) {
   )
 }
 
-// True when every drawing element under `el` is a fully opaque, solid-white
-// shape (optionally inside plain <g> wrappers) — i.e. the mask paints a flat
-// region and nothing more, so it is equivalent to a clip path.
+// True when every drawing element under `el` is a fully opaque, solid white or
+// black shape (optionally inside plain <g> wrappers), with at least one white
+// one — i.e. the mask paints a flat region and nothing more, so it is
+// equivalent to a clip path.
 function isPlainClipMask(el) {
   let shapes = 0
   const walk = (parent) => {
@@ -361,14 +387,15 @@ function isPlainClipMask(el) {
         continue
       }
       if (!SHAPE_TAGS.has(tag)) return false
-      if (!isOpaqueWhite(child.getAttribute('fill'))) return false
+      const fill = child.getAttribute('fill')
+      if (!isOpaqueWhite(fill) && !isOpaqueBlack(fill)) return false
       const fo = child.getAttribute('fill-opacity')
       if (fo != null && parseFloat(fo) < 1) return false
       const op = child.getAttribute('opacity')
       if (op != null && parseFloat(op) < 1) return false
       const style = child.getAttribute('style')
       if (style && /(^|[;\s])(opacity|fill-opacity)\s*:/.test(style)) return false
-      shapes += 1
+      if (isOpaqueWhite(fill)) shapes += 1
     }
     return true
   }
@@ -383,11 +410,11 @@ function stripPaint(el) {
 // Rewrite shape-only `<mask>` elements as `<clipPath>` so Paper.js (which has no
 // <mask> support) applies them. Anything with partial opacity, a gradient, or a
 // non-shape child is left untouched — it simply imports unmasked, as before.
-function maskToClip(svgString) {
+function maskToClip(paper, svgString) {
   if (typeof DOMParser === 'undefined' || typeof XMLSerializer === 'undefined') return svgString
   if (!/<\s*mask[\s>]/.test(svgString)) return svgString
   try {
-    return maskToClipUnsafe(svgString)
+    return maskToClipUnsafe(paper, svgString)
   } catch {
     // Any surprise in the DOM round-trip: fall back to the original string —
     // the SVG then imports unmasked, exactly as it did before.
@@ -395,7 +422,22 @@ function maskToClip(svgString) {
   }
 }
 
-function maskToClipUnsafe(svgString) {
+// Region painted by a mask's shapes in order: revealing ones add, hiding ones
+// cut. Returns global path data, or null when nothing is left.
+function maskRegion(paper, parts) {
+  let acc = null
+  for (const { el, hide } of parts) {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg">${new XMLSerializer().serializeToString(el)}</svg>`
+    const d = clipItemToData(paper, paper.project.importSVG(svg, { expandShapes: true, insert: false }))
+    if (!d) continue
+    const op = operand(paper, d)
+    if (hide) acc = acc && acc.subtract(op)
+    else acc = acc ? acc.unite(op) : op
+  }
+  return acc && acc.pathData ? absPathData(acc.pathData) : null
+}
+
+function maskToClipUnsafe(paper, svgString) {
   const doc = new DOMParser().parseFromString(svgString, 'image/svg+xml')
   if (!doc || !doc.documentElement) return svgString
   if (doc.getElementsByTagName('parsererror').length || doc.documentElement.nodeName === 'parsererror') {
@@ -412,6 +454,8 @@ function maskToClipUnsafe(svgString) {
     if (!id || !isPlainClipMask(mask)) continue
     const clip = doc.createElementNS(SVG_NS, 'clipPath')
     clip.setAttribute('id', id)
+    const alpha = isAlphaMask(mask)
+    const parts = []
     // A <clipPath> may only hold shapes — Paper.js drops any <g> (and its
     // transform) inside one — so flatten wrapper transforms onto each shape.
     const emit = (parent, xf) => {
@@ -423,14 +467,26 @@ function maskToClipUnsafe(svgString) {
           continue
         }
         if (!SHAPE_TAGS.has(child.tagName.toLowerCase())) continue
+        const hide = !alpha && isOpaqueBlack(child.getAttribute('fill'))
         const copy = child.cloneNode(true)
         stripPaint(copy)
         if (combined) copy.setAttribute('transform', combined)
         else copy.removeAttribute('transform')
-        clip.appendChild(copy)
+        parts.push({ el: copy, hide })
       }
     }
     emit(mask, mask.getAttribute('transform') || '')
+    if (parts.some((p) => p.hide)) {
+      // A clip can't subtract, so bake the region into one path.
+      const d = maskRegion(paper, parts)
+      // shortcut: a mask that hides everything imports unmasked; emit an empty clip if that shows up.
+      if (!d) continue
+      const path = doc.createElementNS(SVG_NS, 'path')
+      path.setAttribute('d', d)
+      clip.appendChild(path)
+    } else {
+      for (const p of parts) clip.appendChild(p.el)
+    }
     mask.parentNode.replaceChild(clip, mask)
     converted.add(id)
   }
@@ -455,7 +511,7 @@ export async function importSvgToNodes(svgString) {
   const out = []
   const gradients = {}
   try {
-    const root = paper.project.importSVG(maskToClip(svgString), { expandShapes: true })
+    const root = paper.project.importSVG(maskToClip(paper, svgString), { expandShapes: true })
     if (root) await collect(root, out, gradients, paper, null)
   } finally {
     paper.project.activeLayer.removeChildren()

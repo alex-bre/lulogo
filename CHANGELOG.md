@@ -2,6 +2,19 @@
 
 
 
+
+## [0.5.1](https://github.com/alex-bre/lulogo/compare/v0.5.0...v0.5.1) (2026-10-15)
+
+
+### Features
+
+* delete a path point and break the path open from the right-click menu ([4ea3543](https://github.com/alex-bre/lulogo/commit/4ea3543351d918fd89dbf69e3eea0a094af7f981))
+
+
+### Bug Fixes
+
+* import SVG stroke caps/joins, masks with black shapes and stroke-only clips correctly ([ea93c59](https://github.com/alex-bre/lulogo/commit/ea93c59dccfc42c873b03311974e0ff50af663bd))
+
 ## [0.5.0](https://github.com/alex-bre/lulogo/compare/v0.4.0...v0.5.0) (2026-09-24)
 
 

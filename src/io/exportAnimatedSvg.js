@@ -186,8 +186,8 @@ export function serializeAnimatedDocument(doc, { loop = true } = {}) {
 }
 
 /** Serialize with baked-in animation and download. */
-export function downloadAnimatedSvg(doc, { loop = true, filename = 'animation.svg', embedSource = false } = {}) {
+export function downloadAnimatedSvg(doc, { loop = true, filename = 'animation.svg', embedSource = false, save = downloadBlob } = {}) {
   let svg = serializeAnimatedDocument(doc, { loop })
   if (embedSource) svg = embedProjectInSvg(svg, doc)
-  downloadBlob(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }), filename)
+  return save(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }), filename)
 }

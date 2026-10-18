@@ -24,12 +24,15 @@ export async function buildExportSvg(doc, { textToPaths = false, animated = fals
   return embedSource ? embedProjectInSvg(svg, doc) : svg
 }
 
-/** Trigger a download for already-serialized SVG markup. */
-export function downloadSvgString(svg, filename = 'drawing.svg') {
-  downloadBlob(new Blob([svg], { type: SVG_MIME }), filename)
+/**
+ * Trigger a download for already-serialized SVG markup. `save` is where the file
+ * goes — a browser download unless the caller sends it elsewhere (Google Drive).
+ */
+export function downloadSvgString(svg, filename = 'drawing.svg', save = downloadBlob) {
+  return save(new Blob([svg], { type: SVG_MIME }), filename)
 }
 
 /** Serialize and download as SVG. With `textToPaths`, text is outlined first. */
-export async function downloadSvg(doc, { textToPaths = false, embedSource = false, filename = 'drawing.svg' } = {}) {
-  downloadSvgString(await buildExportSvg(doc, { textToPaths, embedSource }), filename)
+export async function downloadSvg(doc, { textToPaths = false, embedSource = false, filename = 'drawing.svg', save } = {}) {
+  return downloadSvgString(await buildExportSvg(doc, { textToPaths, embedSource }), filename, save)
 }

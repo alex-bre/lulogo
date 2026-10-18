@@ -12,7 +12,23 @@ import RightPanel from './panels/right/RightPanel'
 import CanvasView from './canvas/CanvasView'
 import AnimationPanel from './panels/bottom/AnimationPanel'
 import ImportChoiceDialog from './panels/ImportChoiceDialog'
+import DriveLaunchDialog from './panels/DriveLaunchDialog'
+import { driveConfigured, parseDriveState } from './io/googleDrive'
 import styles from './App.module.css'
+
+/**
+ * Drive's "Open with" lands here with `?state=…`. Take it off the URL straight
+ * away — a reload or a bookmark should not ask to open the file a second time —
+ * and leave the question to DriveLaunchDialog.
+ */
+function takeDriveLaunch() {
+  const launch = parseDriveState(window.location.search)
+  if (!launch) return
+  const url = new URL(window.location.href)
+  url.searchParams.delete('state')
+  window.history.replaceState(null, '', url)
+  if (driveConfigured) useStore.getState().setDriveLaunch(launch)
+}
 
 export default function App() {
   useThemeEffect()
@@ -22,6 +38,7 @@ export default function App() {
   useEffect(() => {
     initHistory()
     initPersist()
+    takeDriveLaunch()
   }, [])
 
   const leftCollapsed = useStore((s) => s.ui.leftCollapsed)
@@ -41,6 +58,7 @@ export default function App() {
       {/* Files reach the app from the canvas and the clipboard as well as the
           toolbar, so the question one of them can raise is mounted app-wide. */}
       <ImportChoiceDialog />
+      <DriveLaunchDialog />
     </div>
   )
 }

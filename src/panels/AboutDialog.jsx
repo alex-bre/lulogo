@@ -30,7 +30,7 @@ const PROVIDER = {
 }
 
 /** Shown on the legal sections, so a reader can tell how current they are. */
-const LEGAL_UPDATED = '2 September 2026'
+const LEGAL_UPDATED = '18 October 2026'
 
 /**
  * The documents this build has to be able to point at.
@@ -149,8 +149,8 @@ export default function AboutDialog({ onClose }) {
 
         <p className={styles.blurb}>
           An infinite-canvas SVG editor that runs entirely in your browser. Nothing you draw is
-          uploaded — your document is saved in this browser, on this device, and clearing the site
-          data deletes it.
+          uploaded unless you save it to your own Google Drive — your document is saved in this
+          browser, on this device, and clearing the site data deletes it.
         </p>
 
         <ul className={styles.links}>
@@ -173,13 +173,14 @@ export default function AboutDialog({ onClose }) {
         <LegalSection
           icon={ShieldCheck}
           label="Privacy policy"
-          note="No tracking, no uploads — what is stored locally, and where"
+          note="No tracking, no uploads — what is stored locally, and what Google Drive sees"
         >
           <p>
-            Lulogo has no server component, no account, and no login. It sets no cookies and runs
+            Lulogo has no server component and no account of its own. It sets no cookies and runs
             no analytics, tracking, or crash reporting, and fonts, scripts, and styles are served
-            from this site alone. Importing, editing, and exporting all happen in your browser —
-            nothing you draw is uploaded.
+            from this site alone — except for the optional Google Drive features below, which load
+            Google's code only once you use them. Importing, editing, and exporting all happen in
+            your browser; nothing you draw is uploaded unless you save it to Google Drive.
           </p>
 
           <h3>Data stored on your device</h3>
@@ -191,6 +192,39 @@ export default function AboutDialog({ onClose }) {
             <code>lulogo.theme</code>. None of it is transmitted anywhere, and it stays until you
             clear this site's data in your browser settings — which also discards your unsaved
             drawing, so export it first.
+          </p>
+
+          <h3>Google Drive (optional)</h3>
+          <p>
+            The File menu can open files from your Google Drive and save projects and exports to
+            it, and Drive's “Open with” can start Lulogo on a file. Only when you use one of these
+            does the app load Google's sign-in and file-picker scripts from{' '}
+            <code>accounts.google.com</code> and <code>apis.google.com</code>, and ask you to sign
+            in with your Google account. Google Ireland Limited (Gordon House, Barrow Street,
+            Dublin 4, Ireland) then processes your account data, IP address, and the files involved
+            under its own terms and the{' '}
+            <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer noopener">
+              Google Privacy Policy
+            </a>
+            , which may include a transfer to Google LLC in the USA (certified under the EU–US
+            Data Privacy Framework). The legal basis is your request to use the feature
+            (Art. 6(1)(b) GDPR, § 25(2) no. 2 TDDDG).
+          </p>
+          <p>
+            Lulogo asks only for access to the files you open with it, pick in the Drive file
+            picker, or create with it (<code>drive.file</code>), plus permission to appear under
+            “Open with” in Drive (<code>drive.install</code>) — never for the rest of your Drive.
+            The access token Google issues stays in this browser tab's memory and is gone when you
+            close it; files travel directly between your browser and Google, and no copy reaches
+            the provider named below. You can withdraw the access at any time in your{' '}
+            <a href="https://myaccount.google.com/connections" target="_blank" rel="noreferrer noopener">
+              Google account settings
+            </a>
+            . Lulogo's use of information received from Google APIs adheres to the{' '}
+            <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noreferrer noopener">
+              Google API Services User Data Policy
+            </a>
+            , including the Limited Use requirements.
           </p>
 
           <h3>Hosting</h3>
@@ -213,7 +247,8 @@ export default function AboutDialog({ onClose }) {
             the rights to information, rectification, erasure, restriction, portability, and
             objection (Art. 15–21 GDPR) and may complain to a supervisory authority (Art. 77). In
             practice there is little to act on: no accounts and no database are held here, and
-            requests about the server logs above have to go to GitHub.
+            requests about the server logs above have to go to GitHub, and about your Google
+            account and Drive to Google.
           </p>
         </LegalSection>
 

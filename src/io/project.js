@@ -11,6 +11,13 @@ import { DOCUMENT_VERSION, migrateDocument } from './migrate'
 
 const FORMAT = 'lulogo-editor'
 
+// What Google Drive knows a project by. Drive picks the default app for a file
+// by its MIME type, and Lulogo is registered as that app for this one and for
+// the `.lulogo` extension — so files written to Drive carry both. The local
+// download keeps `.lulogo.json`, which every OS can open as text.
+export const PROJECT_MIME = 'application/vnd.lulogo+json'
+export const DRIVE_PROJECT_EXT = '.lulogo'
+
 export function serializeProject(doc) {
   return JSON.stringify({ format: FORMAT, version: DOCUMENT_VERSION, document: doc }, null, 2)
 }
@@ -27,7 +34,11 @@ export function parseProject(text) {
 }
 
 export function isProjectFile(file) {
-  return file.type === 'application/json' || /\.json$/i.test(file.name)
+  return (
+    file.type === 'application/json' ||
+    file.type === PROJECT_MIME ||
+    /\.(json|lulogo)$/i.test(file.name)
+  )
 }
 
 export function downloadProject(doc, filename = 'drawing.lulogo.json') {

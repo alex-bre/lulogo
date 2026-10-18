@@ -9,8 +9,11 @@ import { downloadBlob } from './download'
  *
  * With `embedSource`, the project JSON is spliced into the file's metadata so
  * the picture reopens here as the editable document (see `embedSource.js`).
+ *
+ * `save` is where the file goes — a browser download unless the caller sends it
+ * elsewhere (Google Drive).
  */
-export async function downloadPng(doc, { scale = 1, embedSource = false, filename = 'drawing.png' } = {}) {
+export async function downloadPng(doc, { scale = 1, embedSource = false, filename = 'drawing.png', save = downloadBlob } = {}) {
   const svg = serializeDocument(doc)
   const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg)
 
@@ -28,8 +31,8 @@ export async function downloadPng(doc, { scale = 1, embedSource = false, filenam
 
   const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'))
   if (!blob) throw new Error('Failed to encode the PNG')
-  if (!embedSource) return downloadBlob(blob, filename)
+  if (!embedSource) return save(blob, filename)
 
   const bytes = embedProjectInPng(new Uint8Array(await blob.arrayBuffer()), doc)
-  downloadBlob(new Blob([bytes], { type: 'image/png' }), filename)
+  return save(new Blob([bytes], { type: 'image/png' }), filename)
 }

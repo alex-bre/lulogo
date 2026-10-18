@@ -28,7 +28,14 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      # The Google Drive identifiers are repository variables rather than files
+      # in the repo (see .env.example), so only this deploy carries them — the
+      # release zip and the Docker image build without, and leave Drive out.
       - run: npm run build
+        env:
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
+          VITE_GOOGLE_API_KEY: ${{ vars.GOOGLE_API_KEY }}
+          VITE_GOOGLE_APP_ID: ${{ vars.GOOGLE_APP_ID }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

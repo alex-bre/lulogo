@@ -39,6 +39,7 @@
   - SVG (whole page or selection only) and PNG
   - Optimisation pass you can tune
   - Project file `.lulogo.json`
+  - Open from and save to Google Drive, and open `.lulogo` files from Drive with "Open with → Lulogo"
   - Import SVGs and images
   - Import draw.io diagrams (incomplete)
 
@@ -53,6 +54,34 @@ npm run preview    # serve that build locally
 ```
 
 Node 22 or newer.
+
+### Google Drive
+
+The Drive features need three Google identifiers. They are not kept in the
+repository:
+
+- **Locally**, copy [`.env.example`](.env.example) to `.env.local` and fill it
+  in. `.env.local` is ignored by git.
+- **The Pages deploy** reads them from the repository variables
+  `GOOGLE_CLIENT_ID`, `GOOGLE_API_KEY` and `GOOGLE_APP_ID` (*Settings → Secrets
+  and variables → Actions → Variables*).
+
+They are not passwords either: a browser-only app ships them inside its bundle,
+and Google accepts them only from the sites they are registered for.
+Development and production use separate credentials in the same Google Cloud
+project:
+
+| | OAuth client | Picker API key | Accepted origin |
+| --- | --- | --- | --- |
+| Production (repository variables) | Lulogo Web | Lulogo Picker | `https://alex-bre.github.io` |
+| Development (`.env.local`) | Lulogo Dev | Lulogo Picker Dev | `http://localhost:5173` |
+
+The dev server has to run on exactly that port for sign-in to work
+(`npm run dev` uses it unless it is taken).
+
+Builds without them, such as the release zip, the Docker image or a fork, leave
+the Drive entries out of the File menu. To use Drive there, register your own
+Google Cloud project for that address.
 
 ## Releases and deployment
 

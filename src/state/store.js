@@ -234,6 +234,13 @@ export const useStore = create(
       // Set while an import is waiting to be told whether a file that carries a
       // project should open as one: { name, kind }. See io/importChoice.js.
       importChoice: null,
+      // The Google Drive file this document was opened from or last saved to:
+      // { id, name, mimeType }, or null when it has none. "Save to Google Drive"
+      // writes back to it. See io/driveFiles.js.
+      driveFile: null,
+      // Set when Drive's "Open with" started the app, until the user answers the
+      // prompt to sign in and load it: { ids, userId }. See io/googleDrive.js.
+      driveLaunch: null,
     },
 
     /* ---- theme / ui ---- */
@@ -253,6 +260,8 @@ export const useStore = create(
     setLeftTab: (tab) => set((s) => void (s.ui.leftTab = tab)),
     setRightTab: (tab) => set((s) => void (s.ui.rightTab = tab)),
     setImportChoice: (req) => set((s) => void (s.ui.importChoice = req)),
+    setDriveFile: (file) => set((s) => void (s.ui.driveFile = file)),
+    setDriveLaunch: (launch) => set((s) => void (s.ui.driveLaunch = launch)),
     toggleLeftPanel: () => set((s) => void (s.ui.leftCollapsed = !s.ui.leftCollapsed)),
     toggleRightPanel: () => set((s) => void (s.ui.rightCollapsed = !s.ui.rightCollapsed)),
     // Explicit setters back the viewport-driven collapse (state/useResponsiveLayout.js).
@@ -1052,6 +1061,9 @@ export const useStore = create(
       set((s) => {
         s.document = doc
         s.selection = []
+        // Whatever replaced the document is not the Drive file any more. The
+        // Drive open path links the new one after loading it.
+        s.ui.driveFile = null
         s.ui.editingTextId = null
         s.ui.editingPathId = null
         s.ui.activeAnchor = null

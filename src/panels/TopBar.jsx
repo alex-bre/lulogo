@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Upload, Download, Sun, Moon, ChevronDown, Undo2, Redo2, FolderOpen, Save, Info, Minimize2 } from 'lucide-react'
+import { Upload, Download, Sun, Moon, ChevronDown, Undo2, Redo2, FolderOpen, Save, Info, Minimize2, CloudDownload, CloudUpload } from 'lucide-react'
 import { BUILD_LABEL } from '../buildInfo'
 import AboutDialog from './AboutDialog'
 import OptimizeDialog from './OptimizeDialog'
@@ -12,6 +12,8 @@ import { downloadProject } from '../io/project'
 import { exportFilename } from '../io/embedSource'
 import { importFiles, openProjectFile } from '../io/importFile'
 import { cropDocumentToSelection } from '../io/cropDocument'
+import { driveConfigured, driveToken } from '../io/googleDrive'
+import { exportBlobToDrive, openFromDrive, saveToDrive } from '../io/driveFiles'
 import styles from './TopBar.module.css'
 
 export default function TopBar() {
@@ -22,6 +24,7 @@ export default function TopBar() {
   const canRedo = useStore((s) => s.future.length > 0)
   const hasAnimation = useStore((s) => !!(s.document.animation && s.document.animation.clips.length))
   const hasSelection = useStore((s) => s.selection.length > 0)
+  const driveFile = useStore((s) => s.ui.driveFile)
 
   const importRef = useRef(null)
   const projectRef = useRef(null)
@@ -30,7 +33,10 @@ export default function TopBar() {
   const [textToPaths, setTextToPaths] = useState(false)
   const [selectionOnly, setSelectionOnly] = useState(false)
   const [embedSource, setEmbedSource] = useState(false)
+  const [exportToDrive, setExportToDrive] = useState(false)
   const [busy, setBusy] = useState(false)
+  // A short confirmation after a Drive save, which has no download to show for it.
+  const [notice, setNotice] = useState(null)
   const [aboutOpen, setAboutOpen] = useState(false)
   // Set to { svg, filename, animated } while the optimize dialog is open.
   const [optimizing, setOptimizing] = useState(null)
@@ -44,17 +50,26 @@ export default function TopBar() {
     return () => document.removeEventListener('pointerdown', onDoc)
   }, [menuOpen])
 
+  useEffect(() => {
+    if (!notice) return
+    const t = setTimeout(() => setNotice(null), 2500)
+    return () => clearTimeout(t)
+  }, [notice])
+
   const withBusy = async (fn) => {
     setBusy(true)
     try {
       await fn()
     } catch (err) {
+      // Closing the Google sign-in or the Drive picker is the user stepping back.
+      if (err?.cancelled) return
       console.error(err)
       alert(err?.message || 'Something went wrong')
     } finally {
       setBusy(false)
     }
   }
+  const savedTo = (name) => name && setNotice(`Saved “${name}” to Google Drive`)
 
   const onImportPick = async (e) => {
     const files = e.target.files
@@ -72,9 +87,16 @@ export default function TopBar() {
     const st = useStore.getState()
     return selectionOnly && st.selection.length ? cropDocumentToSelection(st.document, st.selection) : st.document
   }
+  // With "Export to Google Drive" ticked the file goes there instead of to a
+  // download. Signing in comes first, while the click still counts as one —
+  // rendering a PNG can take longer than a browser lets a popup wait.
   const runExport = (fn) => {
     setMenuOpen(false)
-    withBusy(() => fn(exportDoc()))
+    if (!(exportToDrive && driveConfigured)) return withBusy(() => fn(exportDoc()))
+    withBusy(async () => {
+      await driveToken()
+      savedTo(await fn(exportDoc(), exportBlobToDrive))
+    })
   }
 
   // The optimizer works on markup, not on the document, so the export is
@@ -101,6 +123,10 @@ export default function TopBar() {
   const saveProject = () => {
     setMenuOpen(false)
     withBusy(() => downloadProject(useStore.getState().document))
+  }
+  const driveAction = (fn) => {
+    setMenuOpen(false)
+    withBusy(fn)
   }
 
   return (
@@ -149,7 +175,7 @@ export default function TopBar() {
         <input
           ref={projectRef}
           type="file"
-          accept=".json,application/json,.svg,image/svg+xml,.png,image/png,.drawio,.xml,.html"
+          accept=".json,application/json,.lulogo,application/vnd.lulogo+json,.svg,image/svg+xml,.png,image/png,.drawio,.xml,.html"
           hidden
           onChange={onProjectPick}
         />
@@ -176,6 +202,42 @@ export default function TopBar() {
                 <Save size={15} />
                 Save project
               </button>
+
+              {driveConfigured && (
+                <>
+                  <div className={styles.menuSep} />
+                  <button
+                    className={styles.menuItem}
+                    title="Pick a project, or an SVG/PNG, from your Google Drive"
+                    onClick={() => driveAction(openFromDrive)}
+                  >
+                    <CloudDownload size={15} />
+                    Open from Google Drive…
+                  </button>
+                  <button
+                    className={styles.menuItem}
+                    title={
+                      driveFile
+                        ? `Write this project back to “${driveFile.name}” in Google Drive`
+                        : 'Save this project as a new .lulogo file in Google Drive'
+                    }
+                    onClick={() => driveAction(async () => savedTo(await saveToDrive()))}
+                  >
+                    <CloudUpload size={15} />
+                    {driveFile ? 'Save to Google Drive' : 'Save to Google Drive…'}
+                  </button>
+                  {driveFile && (
+                    <button
+                      className={styles.menuItem}
+                      title="Save a copy as a new .lulogo file in Google Drive and keep working on that"
+                      onClick={() => driveAction(async () => savedTo(await saveToDrive({ asNew: true })))}
+                    >
+                      <CloudUpload size={15} />
+                      Save to Google Drive as…
+                    </button>
+                  )}
+                </>
+              )}
 
               <div className={styles.menuSep} />
 
@@ -208,11 +270,17 @@ export default function TopBar() {
                 <input type="checkbox" checked={embedSource} onChange={(e) => setEmbedSource(e.target.checked)} />
                 Embed project source
               </label>
+              {driveConfigured && (
+                <label className={styles.menuCheck} title="Save the SVG and PNG exports below as new files in Google Drive instead of downloading them. Optimize SVG still downloads.">
+                  <input type="checkbox" checked={exportToDrive} onChange={(e) => setExportToDrive(e.target.checked)} />
+                  Export to Google Drive
+                </label>
+              )}
               <button
                 className={styles.menuItem}
                 onClick={() =>
-                  runExport((d) =>
-                    downloadSvg(d, { textToPaths, embedSource, filename: exportFilename('drawing', 'svg', embedSource) }),
+                  runExport((d, save) =>
+                    downloadSvg(d, { textToPaths, embedSource, save, filename: exportFilename('drawing', 'svg', embedSource) }),
                   )
                 }
               >
@@ -223,10 +291,11 @@ export default function TopBar() {
                 disabled={!hasAnimation}
                 title={hasAnimation ? 'SVG with the timeline baked in as CSS keyframes' : 'Add effects in the Animation panel first'}
                 onClick={() =>
-                  runExport((d) =>
+                  runExport((d, save) =>
                     downloadAnimatedSvg(d, {
                       loop: useStore.getState().ui.anim.loop,
                       embedSource,
+                      save,
                       filename: exportFilename('animation', 'svg', embedSource),
                     }),
                   )
@@ -245,7 +314,9 @@ export default function TopBar() {
               <button
                 className={styles.menuItem}
                 onClick={() =>
-                  runExport((d) => downloadPng(d, { embedSource, filename: exportFilename('drawing', 'png', embedSource) }))
+                  runExport((d, save) =>
+                    downloadPng(d, { embedSource, save, filename: exportFilename('drawing', 'png', embedSource) }),
+                  )
                 }
               >
                 Export as PNG
@@ -257,7 +328,7 @@ export default function TopBar() {
 
       <div className={styles.spacer} />
 
-      {busy && <span className={styles.busy}>Working…</span>}
+      {busy ? <span className={styles.busy}>Working…</span> : notice && <span className={styles.busy}>{notice}</span>}
 
       {/* The one entry point for everything legal: the source link AGPL §13 owes
           anyone running this over a network, the licence and notice files, the

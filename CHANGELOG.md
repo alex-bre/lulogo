@@ -3,6 +3,14 @@
 
 
 
+
+## [0.5.2](https://github.com/alex-bre/lulogo/compare/v0.5.1...v0.5.2) (2026-10-18)
+
+
+### Features
+
+* open, save and export through Google Drive ([765010a](https://github.com/alex-bre/lulogo/commit/765010a90c681e3f82f25dfdc279ef50751b81de))
+
 ## [0.5.1](https://github.com/alex-bre/lulogo/compare/v0.5.0...v0.5.1) (2026-10-15)
 
 
